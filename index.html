@@ -28,19 +28,36 @@
   font-style: normal; font-weight: 400;
   src: url('fonts/vt323.woff2') format('woff2');
 }
+:root {
+  /* MehOS palette — neon cyberpunk desk scene */
+  --mos-bg:            #0a0818;
+  --mos-panel:         #17123a;
+  --mos-panel-2:       #211a4d;
+  --mos-panel-deep:    #0e0b28;
+  --mos-accent:        #ff4fd8;
+  --mos-accent-cyan:   #4dd9e8;
+  --mos-accent-purple: #b34de0;
+  --mos-accent-blue:   #6a5cff;
+  --mos-border-light:  #9a86ff;
+  --mos-border-dark:   #0c0924;
+  --mos-text:          #eef0ff;
+  --mos-text-dim:      #9891c9;
+  --mos-taskbar:       #150f3d;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #root { width: 100%; height: 100%; overflow: hidden; }
-body { font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-serif; }
+body { font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-serif; background: var(--mos-bg); }
 
 ::-webkit-scrollbar { width: 17px; height: 17px; }
-::-webkit-scrollbar-track { background: #c0c0c0; }
+::-webkit-scrollbar-track { background: var(--mos-panel); }
 ::-webkit-scrollbar-thumb {
-  background: #c0c0c0;
-  border-top: 2px solid #fff; border-left: 2px solid #fff;
-  border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+  background: var(--mos-panel-2);
+  border-top: 2px solid var(--mos-border-light); border-left: 2px solid var(--mos-border-light);
+  border-bottom: 2px solid var(--mos-border-dark); border-right: 2px solid var(--mos-border-dark);
 }
-::-webkit-scrollbar-corner { background: #c0c0c0; }
-::-webkit-scrollbar-button { background: #c0c0c0; border-top: 2px solid #fff; border-left: 2px solid #fff; border-bottom: 2px solid #808080; border-right: 2px solid #808080; }
+::-webkit-scrollbar-corner { background: var(--mos-panel); }
+::-webkit-scrollbar-button { background: var(--mos-panel); border-top: 2px solid var(--mos-border-light); border-left: 2px solid var(--mos-border-light); border-bottom: 2px solid var(--mos-border-dark); border-right: 2px solid var(--mos-border-dark); }
 
 @keyframes rainbowShift {
   0%   { background-position: 0% 50%; }
@@ -88,8 +105,8 @@ const WIN95_FONT = "'Pixelated MS Sans Serif','MS Sans Serif','Microsoft Sans Se
    chrome (titles, labels, buttons, menus) pixel-fonted while body text stays
    legible at small sizes. */
 const BODY_FONT = "'MS Sans Serif','Segoe UI',Tahoma,Geneva,Verdana,sans-serif";
-const SILVER = '#c0c0c0';
-const NAVY = '#000080';
+const SILVER = 'var(--mos-panel)';
+const NAVY = 'var(--mos-accent)';
 const MOBILE_BREAKPOINT = 700;
 
 const useIsMobile = () => {
@@ -102,10 +119,10 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-const raisedBorder = { borderStyle:'solid', borderWidth:2, borderColor:'#ffffff #808080 #808080 #ffffff' };
-const insetBorder  = { borderStyle:'solid', borderWidth:2, borderColor:'#808080 #ffffff #ffffff #808080' };
-const thinRaised   = { borderStyle:'solid', borderWidth:1, borderColor:'#ffffff #808080 #808080 #ffffff' };
-const thinInset    = { borderStyle:'solid', borderWidth:1, borderColor:'#808080 #ffffff #ffffff #808080' };
+const raisedBorder = { borderStyle:'solid', borderWidth:2, borderColor:'var(--mos-border-light) var(--mos-border-dark) var(--mos-border-dark) var(--mos-border-light)' };
+const insetBorder  = { borderStyle:'solid', borderWidth:2, borderColor:'var(--mos-border-dark) var(--mos-border-light) var(--mos-border-light) var(--mos-border-dark)' };
+const thinRaised   = { borderStyle:'solid', borderWidth:1, borderColor:'var(--mos-border-light) var(--mos-border-dark) var(--mos-border-dark) var(--mos-border-light)' };
+const thinInset    = { borderStyle:'solid', borderWidth:1, borderColor:'var(--mos-border-dark) var(--mos-border-light) var(--mos-border-light) var(--mos-border-dark)' };
 
 /* ── Authentic Win95 icons — extracted from system DLLs ── */
 const SECTION_ICONS = {
