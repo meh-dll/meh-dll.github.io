@@ -174,7 +174,7 @@ const Btn95 = ({ children, onClick, style = {}, disabled = false }) => {
       onClick={onClick}
       style={{
         fontFamily: WIN95_FONT, fontSize:11,
-        background: SILVER, color: disabled ? '#808080' : '#000',
+        background: SILVER, color: disabled ? 'var(--mos-text-dim)' : 'var(--mos-text)',
         padding:'3px 12px', cursor:'default', outline:'none', border:'none',
         ...(pressed ? insetBorder : raisedBorder), ...style,
       }}
@@ -352,6 +352,17 @@ const Win95Window = ({
 
 
 /* ── Taskbar ── */
+/* Small live flag mark reused on the Start button — matches the palette
+   used across the boot splash and desktop, no baked image. */
+const MehFlagMark = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" style={{ display:'block', flexShrink:0 }}>
+    <rect x="1"  y="1"  width="8.5" height="8.5" fill="var(--mos-accent-cyan)" />
+    <rect x="10.5" y="1"  width="8.5" height="8.5" fill="var(--mos-accent-purple)" />
+    <rect x="1"  y="10.5" width="8.5" height="8.5" fill="var(--mos-accent-blue)" />
+    <rect x="10.5" y="10.5" width="8.5" height="8.5" fill="var(--mos-accent)" />
+  </svg>
+);
+
 const StartBtn = ({ startOpen, onClick }) => {
   const [pressed, setPressed] = useState(false);
   const active = startOpen || pressed;
@@ -362,13 +373,15 @@ const StartBtn = ({ startOpen, onClick }) => {
       onMouseUp={() => setPressed(false)}
       onMouseLeave={() => setPressed(false)}
       style={{
-        height:24, padding:0, background:'none', border:'none',
-        outline:'none', cursor:'default', display:'flex', alignItems:'center',
-        opacity: active ? 0.85 : 1,
-        filter: active ? 'brightness(0.9)' : 'none',
+        height:24, padding:'0 10px 0 6px', cursor:'default', outline:'none',
+        display:'flex', alignItems:'center', gap:6,
+        fontFamily:WIN95_FONT, fontSize:12, fontWeight:'bold', fontStyle:'italic',
+        color:'var(--mos-text)', background: SILVER,
+        ...(active ? insetBorder : raisedBorder),
       }}
     >
-      <img src="icons/start_btn.png" height="24" draggable="false" style={{ imageRendering:'pixelated', display:'block' }} />
+      <MehFlagMark size={15} />
+      meh
     </button>
   );
 };
@@ -383,7 +396,7 @@ const TaskBtn = ({ win, active, onClick }) => {
       onMouseLeave={() => setPressed(false)}
       style={{
         height:22, minWidth:100, maxWidth:148, padding:'0 6px',
-        fontFamily:WIN95_FONT, fontSize:11, background: SILVER,
+        fontFamily:WIN95_FONT, fontSize:11, background: SILVER, color:'var(--mos-text)',
         cursor:'default', outline:'none', border:'none',
         display:'flex', alignItems:'center', gap:4, overflow:'hidden',
         ...(active || pressed ? insetBorder : raisedBorder),
@@ -427,21 +440,21 @@ const QuickLaunchBtn = ({ id, title, onClick }) => {
 const Win95Taskbar = ({ windows, activeId, onWindowClick, onStartClick, startOpen, time, onQuickLaunch }) => (
   <div style={{
     position:'fixed', bottom:0, left:0, right:0, height:28,
-    background:'#c0c0c0',
-    borderTop:'2px solid #ffffff',
+    background:'var(--mos-taskbar)',
+    borderTop:'2px solid var(--mos-accent-purple)',
     display:'flex', alignItems:'center', padding:'2px 3px', gap:2, zIndex:9999,
     userSelect:'none',
   }}>
     <StartBtn startOpen={startOpen} onClick={onStartClick} />
 
     {/* Quick Launch strip */}
-    <div style={{ width:1, height:22, background:'#808080', margin:'0 3px' }} />
+    <div style={{ width:1, height:22, background:'var(--mos-border-dark)', margin:'0 3px' }} />
     <div style={{ display:'flex', alignItems:'center', gap:1, marginRight:2 }}>
       {QUICK_LAUNCH.map(ql => (
         <QuickLaunchBtn key={ql.id} id={ql.id} title={ql.title} onClick={() => onQuickLaunch(ql.id)} />
       ))}
     </div>
-    <div style={{ width:1, height:22, background:'#808080', margin:'0 3px' }} />
+    <div style={{ width:1, height:22, background:'var(--mos-border-dark)', margin:'0 3px' }} />
 
     {/* Open window buttons */}
     <div style={{ display:'flex', gap:2, flex:1, overflow:'hidden' }}>
@@ -452,11 +465,13 @@ const Win95Taskbar = ({ windows, activeId, onWindowClick, onStartClick, startOpe
 
     {/* System tray */}
     <div style={{
-      marginLeft:'auto', display:'flex', alignItems:'center', gap:4,
+      marginLeft:'auto', display:'flex', alignItems:'center', gap:6,
       padding:'2px 8px', ...thinInset, fontFamily:WIN95_FONT, fontSize:11, whiteSpace:'nowrap',
-      background:'#c0c0c0',
+      background:'var(--mos-taskbar)', color:'var(--mos-text)',
     }}>
-      <span style={{ fontSize:13 }}>🔊</span>
+      <span style={{ fontSize:12 }} title="Secure">🔒</span>
+      <span style={{ fontSize:12 }} title="Uplink">📡</span>
+      <span style={{ fontSize:12 }} title="Audio">🔊</span>
       {time}
     </div>
   </div>
