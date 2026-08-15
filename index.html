@@ -616,10 +616,10 @@ const AboutContent = () => {
           <canvas ref={avatarRef} width={50} height={50} style={{ imageRendering:'pixelated' }} />
         </div>
         <div>
-          <div style={{ fontSize:13, fontWeight:'bold', marginBottom:2 }}>Izak Beaumont</div>
-          <div style={{ color:'#000080', marginBottom:6, fontWeight:'bold', fontSize:11 }}>Junior Information Security Analyst</div>
+          <div style={{ fontSize:13, fontWeight:'bold', marginBottom:2 }}>M3hDLL</div>
+          <div style={{ color:'#000080', marginBottom:6, fontWeight:'bold', fontSize:11 }}>Information Security Analyst &amp; Penetration Tester</div>
           <div style={{ lineHeight:1.6, color:'#222' }}>
-            Information security analyst with hands-on experience in penetration testing, vulnerability assessments, cloud security, and SIEM operations. Active CTF competitor and continuous learner with a passion for offensive security.
+            Information security analyst and penetration tester with hands-on experience in web and Android application security, cloud security assessment, SIEM evaluation, and reverse engineering. Active CTF competitor and self-directed learner focused on offensive security. Comfortable across the stack from smali-level Android teardown to cloud IAM boundary analysis.
           </div>
         </div>
       </div>
@@ -627,21 +627,21 @@ const AboutContent = () => {
       <div style={{ borderTop:'1px solid #808080', paddingTop:8, marginBottom:10 }}>
         <div style={{ fontWeight:'bold', marginBottom:6 }}>🌐 Platforms</div>
         <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
-          {['HackTheBox','CTFtime','GitHub','TryHackMe'].map(p => <SkillBadge95 key={p} label={p} />)}
-        </div>
-      </div>
-
-      <div style={{ borderTop:'1px solid #808080', paddingTop:8, marginBottom:10 }}>
-        <div style={{ fontWeight:'bold', marginBottom:6 }}>⚡ Core Competencies</div>
-        <div style={{ lineHeight:1.7, color:'#333' }}>
-          Penetration testing &amp; technical report writing, security awareness programme delivery, SIEM deployment &amp; evaluation, AWS cloud security assessments, web application security scanning, and cross-team vulnerability remediation.
+          {[
+            { label:'HackTheBox', href:'https://app.hackthebox.com/' },
+            { label:'CTFtime',    href:'https://ctftime.org/' },
+            { label:'GitHub',     href:'https://github.com/meh-dll' },
+            { label:'TryHackMe',  href:'https://tryhackme.com/' },
+          ].map(p => (
+            <Btn95 key={p.label} onClick={() => window.open(p.href, '_blank')} style={{ fontSize:10, padding:'2px 8px' }}>{p.label}</Btn95>
+          ))}
         </div>
       </div>
 
       <div style={{ borderTop:'1px solid #808080', paddingTop:8 }}>
-        <div style={{ fontWeight:'bold', marginBottom:6 }}>📍 Background</div>
+        <div style={{ fontWeight:'bold', marginBottom:6 }}>⚡ Core Competencies</div>
         <div style={{ lineHeight:1.7, color:'#333' }}>
-          Based in London. Background in web development &amp; IT support, with qualifications in Graphic Design and Cyber Security. Actively engaged in CTF competitions and security research outside of work.
+          Penetration testing &amp; technical report writing, security awareness programme delivery, SIEM deployment &amp; evaluation, AWS cloud security assessments, web application security testing, Android application reverse engineering, and cross-team vulnerability remediation.
         </div>
       </div>
     </div>
@@ -991,22 +991,19 @@ const HolyCVPreview = ({ onClose }) => {
         >
           <div style={{ padding:'18px 22px', fontFamily:'Georgia,serif' }}>
             <div style={{ textAlign:'center', borderBottom:'2px solid #c8a400', paddingBottom:10, marginBottom:14 }}>
-              <div style={{ fontSize:17, fontWeight:'bold', letterSpacing:2 }}>IZAK BEAUMONT</div>
-              <div style={{ fontSize:10, color:'#555', marginTop:3, letterSpacing:1 }}>JUNIOR INFORMATION SECURITY ANALYST</div>
-              <div style={{ fontSize:9, color:'#888', marginTop:3 }}>London, UK</div>
+              <div style={{ fontSize:17, fontWeight:'bold', letterSpacing:2 }}>M3hDLL</div>
+              <div style={{ fontSize:10, color:'#555', marginTop:3, letterSpacing:1 }}>INFORMATION SECURITY ANALYST &amp; PENETRATION TESTER</div>
             </div>
             <div style={{ fontSize:9.5, lineHeight:1.7, color:'#333' }}>
               <div style={{ fontWeight:'bold', fontSize:10, color:'#8b6914', marginBottom:3, letterSpacing:1 }}>PROFILE</div>
-              <p style={{ marginBottom:10 }}>Information security analyst with hands-on experience in penetration testing, vulnerability assessments, cloud security, and SIEM operations. Active CTF competitor with a passion for offensive security.</p>
+              <p style={{ marginBottom:10 }}>Information security analyst and penetration tester with hands-on experience in web and Android application security, cloud security assessment, SIEM evaluation, and reverse engineering. Active CTF competitor and self-directed learner focused on offensive security.</p>
               <div style={{ fontWeight:'bold', fontSize:10, color:'#8b6914', marginBottom:3, letterSpacing:1 }}>CORE COMPETENCIES</div>
-              <p style={{ marginBottom:10 }}>Penetration testing · Technical report writing · Security awareness programme delivery · SIEM deployment &amp; evaluation · AWS cloud security · Web application security scanning · Cross-team vulnerability remediation</p>
-              <div style={{ fontWeight:'bold', fontSize:10, color:'#8b6914', marginBottom:3, letterSpacing:1 }}>BACKGROUND</div>
-              <p style={{ marginBottom:10 }}>Background in web development &amp; IT support. Qualifications in Graphic Design and Cyber Security. Based in London. Actively engaged in CTF competitions and security research.</p>
+              <p style={{ marginBottom:10 }}>Penetration testing · Technical report writing · Security awareness programme delivery · SIEM deployment &amp; evaluation · AWS cloud security assessments · Web application security testing · Android application reverse engineering · Cross-team vulnerability remediation</p>
               <div style={{ fontWeight:'bold', fontSize:10, color:'#8b6914', marginBottom:3, letterSpacing:1 }}>PLATFORMS</div>
               <p>HackTheBox · CTFtime · GitHub · TryHackMe</p>
             </div>
             <div style={{ textAlign:'center', marginTop:14, fontSize:8.5, color:'#aaa', borderTop:'1px solid #e8d89a', paddingTop:7 }}>
-              Last updated: April 2025 · PDF (A4)
+              PDF (A4)
             </div>
           </div>
         </div>
@@ -1062,16 +1059,15 @@ const ResumeContent = () => {
       <div style={{ display:'flex', gap:12, marginBottom:14, alignItems:'flex-start' }}>
         <div style={{ fontSize:40, lineHeight:1 }}>📄</div>
         <div>
-          <div style={{ fontSize:13, fontWeight:'bold', marginBottom:4 }}>Resume / CV</div>
+          <div style={{ fontSize:13, fontWeight:'bold', marginBottom:4 }}>Resume / CV — Information Security Analyst &amp; Penetration Tester</div>
           <div style={{ color:'#444', lineHeight:1.7 }}>
-            Last updated: April 2025<br/>
             Format: PDF (A4)<br/>
-            Includes: Experience, Certs, Projects, Skills
+            Includes: Experience, Research, Skills
           </div>
         </div>
       </div>
       <div style={{ display:'flex', gap:6 }}>
-        <Btn95 onClick={() => { const a = document.createElement('a'); a.href = 'cv.pdf'; a.download = 'Izak_Beaumont_CV.pdf'; a.click(); }}>⬇ Download PDF</Btn95>
+        <Btn95 onClick={() => { const a = document.createElement('a'); a.href = 'cv.pdf'; a.download = 'M3hDLL_CV.pdf'; a.click(); }}>⬇ Download PDF</Btn95>
         <Btn95 onClick={() => setShowPreview(true)}>👁 Preview</Btn95>
       </div>
     </div>
