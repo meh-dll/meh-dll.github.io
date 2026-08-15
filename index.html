@@ -1588,6 +1588,7 @@ const Desktop = ({ tweaks }) => {
   }, [windows, activeId, focusWindow, minimizeWindow]);
 
   const bgStyle = {
+    mehos: 'transparent',
     teal: '#008080',
     grey: '#6e6e6e',
     dark: '#1a1a2e',
@@ -1606,7 +1607,13 @@ const Desktop = ({ tweaks }) => {
 
   return (
     <div
-      style={{ position:'fixed', inset:0, background: bgStyle, animation:'desktopReveal 0.6s ease', overflow:'hidden' }}
+      style={{
+        position:'fixed', inset:0, background: bgStyle, animation:'desktopReveal 0.6s ease', overflow:'hidden',
+        ...(tweaks.wallpaper === 'mehos' ? {
+          backgroundImage:"url('icons/mehos_wallpaper.jpg')",
+          backgroundSize:'cover', backgroundPosition:'center', backgroundRepeat:'no-repeat',
+        } : {}),
+      }}
       onClick={() => { setStartOpen(false); setSelectedIcon(null); setContextMenu(null); }}
       onContextMenu={e => { e.preventDefault(); setContextMenu({ x:e.clientX, y:e.clientY }); setStartOpen(false); }}
     >
@@ -1718,7 +1725,7 @@ const Desktop = ({ tweaks }) => {
    ════════════════════════════════════════════ */
 
 const TWEAK_DEFAULTS = {
-  wallpaper: 'teal',
+  wallpaper: 'mehos',
   iconSize: 'small',
   showClock: true,
 };
@@ -1740,9 +1747,10 @@ const App = () => {
               label="Wallpaper"
               value={tweaks.wallpaper}
               options={[
-                { value:'teal', label:'Teal' },
-                { value:'grey', label:'Grey' },
-                { value:'dark', label:'Dark' },
+                { value:'mehos', label:'MehOS' },
+                { value:'teal',  label:'Teal'  },
+                { value:'grey',  label:'Grey'  },
+                { value:'dark',  label:'Dark'  },
               ]}
               onChange={v => setTweak('wallpaper', v)}
             />
