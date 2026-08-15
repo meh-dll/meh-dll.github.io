@@ -73,28 +73,10 @@ body { font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-ser
   from { opacity:0; } to { opacity:1; }
 }
 
-.mobile-warn { display: none; }
-@media (max-width: 700px) {
-  .mobile-warn { display: flex !important; }
-  #root { display: none !important; }
-}
+html, body { overscroll-behavior: none; }
 </style>
 </head>
 <body>
-
-<!-- Mobile fallback -->
-<div class="mobile-warn" style="position:fixed;inset:0;background:#000080;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:99999;">
-  <img src="icons/windows95_logo.svg" width="60" height="52" />
-  <div style="background:#c0c0c0;border:2px solid;border-color:#fff #808080 #808080 #fff;padding:20px 24px;max-width:280px;text-align:center;">
-    <div style="font-family:'MS Sans Serif',Tahoma,sans-serif;font-size:13px;font-weight:bold;margin-bottom:8px;">⚠️ Display Warning</div>
-    <div style="font-family:'MS Sans Serif',Tahoma,sans-serif;font-size:11px;line-height:1.6;margin-bottom:16px;">
-      This site is best viewed on a desktop computer with a screen resolution of 1024×768 or higher.
-    </div>
-    <button onclick="document.querySelector('.mobile-warn').style.display='none';document.getElementById('root').style.display=''" style="font-family:'MS Sans Serif',Tahoma,sans-serif;font-size:11px;background:#c0c0c0;border:2px solid;border-color:#fff #808080 #808080 #fff;padding:4px 20px;cursor:pointer;">
-      OK
-    </button>
-  </div>
-</div>
 
 <div id="root"></div>
 
@@ -108,6 +90,17 @@ const { useState, useEffect, useRef, useCallback } = React;
 const WIN95_FONT = "'Pixelated MS Sans Serif','MS Sans Serif','Microsoft Sans Serif',Tahoma,Arial,sans-serif";
 const SILVER = '#c0c0c0';
 const NAVY = '#000080';
+const MOBILE_BREAKPOINT = 700;
+
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= MOBILE_BREAKPOINT);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isMobile;
+};
 
 const raisedBorder = { borderStyle:'solid', borderWidth:2, borderColor:'#ffffff #808080 #808080 #ffffff' };
 const insetBorder  = { borderStyle:'solid', borderWidth:2, borderColor:'#808080 #ffffff #ffffff #808080' };
@@ -260,13 +253,15 @@ const Win95Window = ({
   width = 420, height = 320, x = 80, y = 60,
   isFocused, zIndex = 100,
   onFocus, onClose, onMinimize, onMaximize,
-  isMaximized, isMinimized,
+  isMaximized, isMinimized, isMobile,
   onDragStart, onResizeStart, contentBg = '#ffffff', contentPad = 4,
   statusText = 'Ready',
 }) => {
   if (isMinimized) return null;
 
-  const pos = isMaximized
+  const pos = isMobile
+    ? { left:4, top:4, right:4, width:'calc(100% - 8px)', height:'calc(100% - 92px)' }
+    : isMaximized
     ? { left:0, top:0, width:'100%', height:'calc(100% - 28px)' }
     : { left:x, top:y, width, height };
 
@@ -274,10 +269,11 @@ const Win95Window = ({
     <div
       onMouseDown={() => onFocus(id)}
       style={{ position:'absolute', ...pos, display:'flex', flexDirection:'column',
-        background: SILVER, border:'1px solid #c0c0c0', boxShadow:'1px 1px 1px 1px #222222', zIndex }}
+        background: SILVER, border:'1px solid #c0c0c0', boxShadow:'1px 1px 1px 1px #222222', zIndex,
+        maxWidth:'100%' }}
     >
       {/* Resize handles */}
-      {!isMaximized && RESIZE_HANDLES.map(h => (
+      {!isMaximized && !isMobile && RESIZE_HANDLES.map(h => (
         <div key={h.edge} onMouseDown={e => { e.stopPropagation(); onResizeStart(id, h.edge, e.clientX, e.clientY, width, height, x, y); }}
           style={{ position:'absolute', zIndex:10, ...h.style }} />
       ))}
@@ -287,7 +283,7 @@ const Win95Window = ({
           if (e.target.closest('[data-wbtn]')) return;
           e.preventDefault();
           onFocus(id);
-          if (!isMaximized) onDragStart(id, e.clientX, e.clientY);
+          if (!isMaximized && !isMobile) onDragStart(id, e.clientX, e.clientY);
         }}
         style={{
           background: isFocused ? '#000080' : '#7b7b7b',
@@ -1093,6 +1089,7 @@ const ResumeContent = () => {
 
 const __TWEAKS_STYLE = `
   .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-width:calc(100vw - 32px);
     max-height:calc(100vh - 32px);display:flex;flex-direction:column;
     background:rgba(250,249,247,.78);color:#29261b;
     -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
@@ -1361,7 +1358,7 @@ const BootScreen = ({ onComplete }) => {
    ════════════════════════════════════════════ */
 
 const WINDOW_DEFS = [
-  { id:'readme',   title:'readme.txt - Notepad', icon:'📝', width:400, height:200, Content: ReadmeContent },
+  { id:'readme',   title:'readme.txt - Notepad', icon:'📝', width:420, height:250, Content: ReadmeContent },
   { id:'about',    title:'About Me',    icon:'👤', width:460, height:360, Content: AboutContent },
   { id:'ctf',      title:'CTF',         icon:'🏆', width:480, height:430, Content: CTFContent },
   { id:'research', title:'Research',    icon:'💾', width:620, height:460, Content: ProjectsContent },
@@ -1394,6 +1391,7 @@ const Desktop = ({ tweaks }) => {
   const [windows, setWindows] = useState(initWindows);
   const [maxZ, setMaxZ] = useState(101);
   const [activeId, setActiveId] = useState('readme');
+  const isMobile = useIsMobile();
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState(null);
@@ -1544,7 +1542,25 @@ const Desktop = ({ tweaks }) => {
       onContextMenu={e => { e.preventDefault(); setContextMenu({ x:e.clientX, y:e.clientY }); setStartOpen(false); }}
     >
       {/* Desktop icons */}
-      {ICON_LAYOUT.map(ic => {
+      {isMobile ? (
+        <div style={{ position:'absolute', top:8, left:8, right:8, display:'flex', flexWrap:'wrap', gap:2 }}>
+          {ICON_LAYOUT.map(ic => {
+            const def = WINDOW_DEFS.find(d => d.id === ic.id);
+            return (
+              <div key={ic.id} onClick={e => e.stopPropagation()}>
+                <DesktopIcon95
+                  id={ic.id}
+                  label={def.title}
+                  selected={selectedIcon === ic.id}
+                  iconScale={2}
+                  onSelect={() => { setSelectedIcon(ic.id); openWindow(ic.id); }}
+                  onDoubleClick={() => openWindow(ic.id)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      ) : ICON_LAYOUT.map(ic => {
         const def = WINDOW_DEFS.find(d => d.id === ic.id);
         const pos = iconPositions[ic.id];
         return (
@@ -1580,6 +1596,7 @@ const Desktop = ({ tweaks }) => {
             x={w.position.x}
             y={w.position.y}
             isFocused={activeId === w.id}
+            isMobile={isMobile}
             onFocus={focusWindow}
             onClose={() => closeWindow(w.id)}
             onMinimize={() => minimizeWindow(w.id)}
@@ -1588,7 +1605,7 @@ const Desktop = ({ tweaks }) => {
             onResizeStart={startResize}
             contentBg="#c0c0c0"
             contentPad={0}
-            statusText={`${w.title} — Double-click icons to open`}
+            statusText={isMobile ? w.title : `${w.title} — Double-click icons to open`}
           >
             <C />
           </Win95Window>
