@@ -648,36 +648,70 @@ const AboutContent = () => {
   );
 };
 
-/* ── Projects ── */
+/* ── Research ── */
 const ProjectsContent = () => {
   const [selected, setSelected] = useState(0);
-  const projects = [
-    { icon:'🛰️', name:'GAOFEN SAT Bot', date:'Jul 2025 – Present', desc:'Discord bot using Python (discord.py) that integrates OSINT tools for website analysis, image OCR, and social media lookups, plus a unique Street View location guessing game.', tags:['Python','discord.py','OSINT'] },
-    { icon:'🔍', name:'CTF_BEAST Vulnerability Scanner', date:'Apr 2025 – Present', desc:'Custom-built vulnerability scanner for CTF players, bug bounty hunters, and security researchers. Built with Python, Tkinter, and ttkbootstrap.\n\nCore Features:\n• Reflected & DOM XSS detection (with Puppeteer headless path tracing)\n• SQL injection fuzzing\n• JavaScript pattern analysis (eval, innerHTML, document.write, etc.)\n• CORS, Insecure Cookies, Clickjacking, Open Redirect, Directory Listing checks\n• Smart endpoint discovery & JS analysis\n• Automated PDF reports & vulnerability charts\n• SQLite scan logging per session\n• Real-time dashboard UI with logs, filtering, and export tools', tags:['Python','Web Application Security','Tkinter','ttkbootstrap'] },
+  const research = [
+    {
+      icon: '🔑',
+      name: 'Android system provider credential exposure (CWE-798)',
+      status: 'Informative', statusColor: '#8a6d00',
+      desc: "Reverse-engineered pre-installed ColorOS system applications on a current-generation Android device. Identified an exported system ContentProvider missing its signature readPermission, allowing any zero-permission application to read its backing database — which contained hard-coded production cloud credentials in cleartext.\n\nBuilt a zero-permission proof-of-concept app to confirm the read occurred at an untrusted application UID, then mapped the credential's full IAM access boundary read-only and non-destructively, deliberately stopping short of accessing any production data. Live credentials redacted.\n\nTechniques: exported-provider enumeration, permission-boundary comparison across sibling providers, ContentResolver PoC, IAM policy boundary analysis.\n\nDisclosure: reported to the vendor's bug bounty programme; closed as Informative (assessed as previously known to the vendor's security team).",
+      tags: ['Android','CWE-798','IAM','Bug Bounty'],
+    },
+    {
+      icon: '🌐',
+      name: 'Android deep-link WebView JSBridge exposure',
+      status: 'Duplicate (confirmed)', statusColor: '#555',
+      desc: "Traced a full exploit chain through smali in a pre-installed ColorOS media application: an exported BROWSABLE deep-link handler loaded an attacker-controlled URL into a WebView with a privileged JSBridge pre-registered, exposing persistent device identifiers and the app's local key-value store to any web page.\n\nConfirmed the bridge was bound to the attacker context using Frida instrumentation, and was transparent in the report about the emulator architecture limitation affecting certain native resolvers.\n\nTechniques: smali analysis, deep-link routing analysis, WebView/JSBridge security review, Frida dynamic instrumentation.\n\nDisclosure: reported to the vendor's bug bounty programme; independently discovered, closed as a duplicate of an earlier report (bug confirmed by the programme).",
+      tags: ['Android','WebView','Frida','Bug Bounty'],
+    },
+    {
+      icon: '🛡️',
+      name: 'SIEM platform evaluation (defensive)',
+      desc: 'Ran a hands-on proof-of-concept evaluation of an enterprise AI-SIEM platform: built a structured assessment covering ~90 use cases across log ingestion, detection engineering, cloud posture, vulnerability management, and red-team activity, with console navigation paths and query examples, and flagged which capabilities required separate licensing beyond the trial.',
+      tags: ['SIEM','Detection Engineering','Documentation'],
+    },
+    {
+      icon: '🛰️',
+      name: 'GAOFEN SAT Bot',
+      date: 'Jul 2025 – Present',
+      desc: 'Discord bot using Python (discord.py) that integrates OSINT tools for website analysis, image OCR, and social media lookups, plus a unique Street View location guessing game.',
+      tags: ['Python','discord.py','OSINT'],
+      repoPrivate: true,
+    },
   ];
-  const proj = projects[selected];
+  const item = research[selected];
   return (
     <div style={{ display:'flex', height:'100%', fontFamily:WIN95_FONT, fontSize:11 }}>
-      <div style={{ width:180, borderRight:'2px solid #808080', overflow:'auto', flexShrink:0 }}>
-        {projects.map((p, i) => (
+      <div style={{ width:200, borderRight:'2px solid #808080', overflow:'auto', flexShrink:0 }}>
+        {research.map((r, i) => (
           <ListRow95 key={i} selected={selected === i} onClick={() => setSelected(i)}>
-            <span style={{ fontSize:16 }}>{p.icon}</span>
-            <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</span>
+            <span style={{ fontSize:16 }}>{r.icon}</span>
+            <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.name}</span>
           </ListRow95>
         ))}
       </div>
-      <div style={{ flex:1, padding:10, overflow:'auto' }}>
-        <div style={{ fontSize:13, fontWeight:'bold', marginBottom:4, display:'flex', alignItems:'center', gap:6 }}>
-          <span style={{ fontSize:20 }}>{proj.icon}</span>{proj.name}
+      <div style={{ flex:1, padding:12, overflow:'auto' }}>
+        <div style={{ fontSize:13, fontWeight:'bold', marginBottom:4, display:'flex', alignItems:'flex-start', gap:6 }}>
+          <span style={{ fontSize:20, flexShrink:0 }}>{item.icon}</span>
+          <span style={{ flex:1 }}>{item.name}</span>
         </div>
-        {proj.date && <div style={{ color:'#555', fontSize:10, marginBottom:6 }}>📅 {proj.date}</div>}
-        <div style={{ lineHeight:1.7, marginBottom:10, color:'#333', whiteSpace:'pre-line' }}>{proj.desc}</div>
+        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
+          {item.date && <span style={{ color:'#555', fontSize:10 }}>📅 {item.date}</span>}
+          {item.status && (
+            <span style={{ fontFamily:WIN95_FONT, fontSize:10, fontWeight:'bold', color:'#fff', background:item.statusColor, padding:'1px 6px' }}>
+              {item.status}
+            </span>
+          )}
+        </div>
+        <div style={{ lineHeight:1.7, marginBottom:10, color:'#333', whiteSpace:'pre-line', fontFamily:"'MS Sans Serif',Tahoma,sans-serif", fontSize:12 }}>{item.desc}</div>
         <div style={{ marginBottom:10 }}>
-          {proj.tags.map(t => (
-            <span key={t} style={{ fontFamily:WIN95_FONT, fontSize:10, background:'#000080', color:'#fff', padding:'1px 5px', marginRight:4, display:'inline-block' }}>{t}</span>
+          {item.tags.map(t => (
+            <span key={t} style={{ fontFamily:WIN95_FONT, fontSize:10, background:'#000080', color:'#fff', padding:'1px 5px', marginRight:4, marginBottom:4, display:'inline-block' }}>{t}</span>
           ))}
         </div>
-        <Btn95 disabled style={{ opacity:0.5, cursor:'default' }}>🔒 Private Repository</Btn95>
+        {item.repoPrivate && <Btn95 disabled style={{ opacity:0.5, cursor:'default' }}>🔒 Private Repository</Btn95>}
       </div>
     </div>
   );
