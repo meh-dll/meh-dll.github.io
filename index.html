@@ -88,6 +88,10 @@ const { useState, useEffect, useRef, useCallback } = React;
    ════════════════════════════════════════════ */
 
 const WIN95_FONT = "'Pixelated MS Sans Serif','MS Sans Serif','Microsoft Sans Serif',Tahoma,Arial,sans-serif";
+/* Clean, non-pixelated font for long-form paragraph copy — keeps the Win95
+   chrome (titles, labels, buttons, menus) pixel-fonted while body text stays
+   legible at small sizes. */
+const BODY_FONT = "'MS Sans Serif','Segoe UI',Tahoma,Geneva,Verdana,sans-serif";
 const SILVER = '#c0c0c0';
 const NAVY = '#000080';
 const MOBILE_BREAKPOINT = 700;
@@ -614,7 +618,7 @@ const AboutContent = () => {
         <div>
           <div style={{ fontSize:13, fontWeight:'bold', marginBottom:2 }}>M3hDLL</div>
           <div style={{ color:'#000080', marginBottom:6, fontWeight:'bold', fontSize:11 }}>Information Security Analyst &amp; Penetration Tester</div>
-          <div style={{ lineHeight:1.6, color:'#222' }}>
+          <div style={{ lineHeight:1.6, color:'#222', fontFamily:BODY_FONT, fontSize:12 }}>
             Information security analyst and penetration tester with hands-on experience in web and Android application security, cloud security assessment, SIEM evaluation, and reverse engineering. Active CTF competitor and self-directed learner focused on offensive security. Comfortable across the stack from smali-level Android teardown to cloud IAM boundary analysis.
           </div>
         </div>
@@ -636,7 +640,7 @@ const AboutContent = () => {
 
       <div style={{ borderTop:'1px solid #808080', paddingTop:8 }}>
         <div style={{ fontWeight:'bold', marginBottom:6 }}>⚡ Core Competencies</div>
-        <div style={{ lineHeight:1.7, color:'#333' }}>
+        <div style={{ lineHeight:1.7, color:'#333', fontFamily:BODY_FONT, fontSize:12 }}>
           Penetration testing &amp; technical report writing, security awareness programme delivery, SIEM deployment &amp; evaluation, AWS cloud security assessments, web application security testing, Android application reverse engineering, and cross-team vulnerability remediation.
         </div>
       </div>
@@ -701,7 +705,7 @@ const ProjectsContent = () => {
             </span>
           )}
         </div>
-        <div style={{ lineHeight:1.7, marginBottom:10, color:'#333', whiteSpace:'pre-line', fontFamily:"'MS Sans Serif',Tahoma,sans-serif", fontSize:12 }}>{item.desc}</div>
+        <div style={{ lineHeight:1.7, marginBottom:10, color:'#333', whiteSpace:'pre-line', fontFamily:BODY_FONT, fontSize:12 }}>{item.desc}</div>
         <div style={{ marginBottom:10 }}>
           {item.tags.map(t => (
             <span key={t} style={{ fontFamily:WIN95_FONT, fontSize:10, background:'#000080', color:'#fff', padding:'1px 5px', marginRight:4, marginBottom:4, display:'inline-block' }}>{t}</span>
@@ -751,7 +755,7 @@ const ContactContent = () => {
   ];
   return (
     <div style={{ padding:10, fontFamily:WIN95_FONT, fontSize:11 }}>
-      <div style={{ marginBottom:12, color:'#444', lineHeight:1.6 }}>
+      <div style={{ marginBottom:12, color:'#444', lineHeight:1.6, fontFamily:BODY_FONT, fontSize:12 }}>
         Feel free to reach out for collaboration, security assessments, or just to talk shop. Response time: usually &lt;24h.
       </div>
       {links.map(l => (
@@ -797,7 +801,7 @@ const CTFContent = () => {
             <span style={{ marginLeft:'auto', background:'#000080', color:'#fff', fontSize:10, fontWeight:'bold', padding:'3px 7px' }}>TOP {p.pct}%</span>
           </div>
           <div style={{ fontSize:10, color:'#333', marginBottom: p.note ? 6 : 0 }}>Team: <b>{p.team}</b></div>
-          {p.note && <div style={{ fontSize:11, color:'#555', lineHeight:1.6, fontFamily:"'MS Sans Serif',Tahoma,sans-serif" }}>{p.note}</div>}
+          {p.note && <div style={{ fontSize:12, color:'#555', lineHeight:1.6, fontFamily:BODY_FONT }}>{p.note}</div>}
         </div>
       ))}
       <div style={{ fontSize:11, color:'#444', marginBottom:10, lineHeight:1.6 }}>
@@ -1359,7 +1363,7 @@ const BootScreen = ({ onComplete }) => {
 
 const WINDOW_DEFS = [
   { id:'readme',   title:'readme.txt - Notepad', icon:'📝', width:420, height:250, Content: ReadmeContent },
-  { id:'about',    title:'About Me',    icon:'👤', width:460, height:360, Content: AboutContent },
+  { id:'about',    title:'About Me',    icon:'👤', width:460, height:410, Content: AboutContent },
   { id:'ctf',      title:'CTF',         icon:'🏆', width:480, height:430, Content: CTFContent },
   { id:'research', title:'Research',    icon:'💾', width:620, height:460, Content: ProjectsContent },
   { id:'skills',   title:'Skills',      icon:'⚙️', width:420, height:320, Content: SkillsContent },
