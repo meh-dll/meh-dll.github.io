@@ -46,9 +46,9 @@ body { font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-ser
   0%   { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
 }
-@keyframes blockScroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-48px); }
+@keyframes bootCursorBlink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 @keyframes fadeInOut {
   0%,100% { opacity: 0.3; } 50% { opacity: 1; }
@@ -1293,64 +1293,148 @@ function playChime() {
 
 /* Stylised, non-Microsoft "flag" mark — 2×2 skewed panes in an off-palette,
    no gradient dither, no Windows wordmark. Reused by the boot screen. */
-const M3hOSLogo = ({ size = 84 }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" style={{ display:'block', filter:'drop-shadow(2px 3px 3px rgba(0,0,0,0.45))' }}>
-    <g transform="skewY(-8)">
-      <rect x="8"  y="10" width="38" height="35" fill="#00e5c7" />
-      <rect x="50" y="10" width="38" height="35" fill="#ff4fd8" />
-      <rect x="8"  y="49" width="38" height="35" fill="#5b5bff" />
-      <rect x="50" y="49" width="38" height="35" fill="#ffcc00" />
-    </g>
-  </svg>
-);
+/* Stylised, non-Microsoft "flag" mark — waving quadrants in an off-palette
+   plus a generated pixel-dither fly, drawn from a small loop rather than
+   hand-authored path data. No Windows wordmark anywhere. */
+const MEH_FLAG_COLORS = ['#4dd9e8', '#b34de0', '#3d5fe0', '#4dd977'];
+const MehFlagIcon = ({ width = 190, height = 150 }) => {
+  const ditherCols = 7, ditherRows = 6;
+  const dither = [];
+  for (let c = 0; c < ditherCols; c++) {
+    for (let r = 0; r < ditherRows; r++) {
+      const t = c / (ditherCols - 1);
+      dither.push({
+        x: c * 9 + (r % 2 ? 4 : 0),
+        y: r * 9,
+        s: 3 + t * 3,
+        o: 0.15 + t * 0.7,
+        fill: MEH_FLAG_COLORS[(c + r) % MEH_FLAG_COLORS.length],
+      });
+    }
+  }
+  return (
+    <svg width={width} height={height} viewBox="0 0 190 150" style={{ display:'block', filter:'drop-shadow(0 0 18px rgba(120,180,255,0.35))' }}>
+      <g transform="translate(4,20) skewY(-6)">
+        {dither.map((d, i) => (
+          <rect key={i} x={d.x} y={d.y} width={d.s} height={d.s} fill={d.fill} opacity={d.o} />
+        ))}
+      </g>
+      <g transform="translate(66,10) skewY(-6)" stroke="#0a1230" strokeWidth="2">
+        <rect x="0"  y="0"  width="58" height="52" fill={MEH_FLAG_COLORS[0]} />
+        <rect x="62" y="0"  width="58" height="52" fill={MEH_FLAG_COLORS[1]} />
+        <rect x="0"  y="56" width="58" height="52" fill={MEH_FLAG_COLORS[2]} />
+        <rect x="62" y="56" width="58" height="52" fill={MEH_FLAG_COLORS[3]} />
+      </g>
+    </svg>
+  );
+};
+
+const BOOT_DURATION_MS = 1800;
 
 const BootScreen = ({ onComplete }) => {
   const [loaded, setLoaded] = useState(false);
-  const timerRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  const rafRef = useRef(null);
+  const startRef = useRef(null);
+  const doneRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    setProgress(100);
+    setLoaded(true);
+    setTimeout(onComplete, 300);
+  }, [onComplete]);
 
   useEffect(() => {
     playChime();
-    timerRef.current = setTimeout(() => {
-      setLoaded(true);
-      setTimeout(onComplete, 300);
-    }, 1700);
-    return () => clearTimeout(timerRef.current);
-  }, []);
+    const tick = now => {
+      if (startRef.current === null) startRef.current = now;
+      const pct = Math.min(100, ((now - startRef.current) / BOOT_DURATION_MS) * 100);
+      setProgress(pct);
+      if (pct >= 100) { finish(); return; }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [finish]);
 
-  const skip = () => { clearTimeout(timerRef.current); setLoaded(true); setTimeout(onComplete, 200); };
+  const skip = () => { doneRef.current = false; finish(); };
+
+  const segCount = 34;
+  const filledSegs = Math.round((progress / 100) * segCount);
 
   return (
     <div onClick={skip} style={{
       position:'fixed', inset:0,
-      background:'linear-gradient(160deg, #0b1740 0%, #1c3a8a 45%, #3d6fd6 75%, #7fb3ff 100%)',
+      background:'#000',
       cursor:'default', userSelect:'none',
-      opacity: loaded ? 0 : 1, transition:'opacity 0.4s ease',
+      opacity: loaded ? 0 : 1, transition:'opacity 0.3s ease',
       overflow:'hidden',
-      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16,
+      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14,
+      fontFamily:"'VT323',monospace",
     }}>
-      <M3hOSLogo size={88} />
-      <div style={{ textAlign:'center' }}>
-        <div style={{ fontFamily:'Arial,sans-serif', fontSize:30, fontWeight:'bold', fontStyle:'italic', color:'#fff', letterSpacing:0.5 }}>
-          meh.dll <span style={{ color:'#ffcc00' }}>95</span>
+      {/* CRT scanlines */}
+      <div style={{
+        position:'absolute', inset:0, pointerEvents:'none',
+        backgroundImage:'repeating-linear-gradient(rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px)',
+      }} />
+
+      <MehFlagIcon width={180} height={140} />
+
+      <div style={{
+        fontSize:88, fontWeight:'bold', letterSpacing:2, lineHeight:1,
+        background:'linear-gradient(180deg, #ffffff 0%, #bcd4ff 55%, #7fa8e8 100%)',
+        WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent',
+        WebkitTextStroke:'2px #16295c',
+        textShadow:'0 0 24px rgba(120,180,255,0.55), 0 0 48px rgba(120,180,255,0.3)',
+      }}>MehOS</div>
+
+      <div style={{ display:'flex', alignItems:'center', gap:12, width:340, maxWidth:'80vw' }}>
+        <div style={{ flex:1, height:2, background:'#ff4fd8' }} />
+        <span style={{ fontSize:20, color:'#ff4fd8', letterSpacing:2 }}>meh.dll</span>
+        <div style={{ flex:1, height:2, background:'#ff4fd8' }} />
+      </div>
+
+      <div style={{ fontSize:22, color:'#4dd9e8', letterSpacing:1 }}>loading system...</div>
+
+      <div style={{
+        width:420, maxWidth:'86vw', border:'1px solid rgba(150,190,255,0.5)',
+        background:'rgba(10,16,40,0.5)', padding:'10px 14px', display:'flex', flexDirection:'column', gap:8,
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <span style={{ fontSize:18, color:'#4dd9e8', flexShrink:0 }}>Loading:</span>
+          <div style={{ flex:1, display:'flex', gap:2 }}>
+            {Array.from({ length: segCount }).map((_, i) => (
+              <div key={i} style={{
+                flex:1, height:14,
+                background: i < filledSegs ? '#3355ee' : 'rgba(255,255,255,0.06)',
+                boxShadow: i < filledSegs ? 'inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,20,0.4)' : 'none',
+              }} />
+            ))}
+          </div>
+          <span style={{ fontSize:18, color:'#e8f0ff', minWidth:42, textAlign:'right', fontVariantNumeric:'tabular-nums' }}>
+            {Math.round(progress)}%
+          </span>
+        </div>
+        <div style={{ borderTop:'1px solid rgba(150,190,255,0.25)', paddingTop:8, fontSize:18, color:'#5fdc6a', display:'flex' }}>
+          C:\&gt; booting MehOS...&nbsp;
+          <span style={{ animation:'bootCursorBlink 1s step-end infinite' }}>_</span>
         </div>
       </div>
-      <div style={{ position:'absolute', bottom:24, fontFamily:WIN95_FONT, fontSize:11, color:'rgba(255,255,255,0.7)' }}>
+
+      <div style={{
+        position:'absolute', bottom:14, left:18, right:18,
+        display:'flex', justifyContent:'space-between',
+        fontSize:14, color:'rgba(150,190,255,0.7)', letterSpacing:0.5,
+      }}>
+        <span>Copyright (C) 1995 MehOS Team</span>
+        <span>v0.95.5b (Build 1995)</span>
+      </div>
+
+      <div style={{ position:'absolute', top:14, right:18, fontFamily:WIN95_FONT, fontSize:10, color:'rgba(150,190,255,0.5)' }}>
         Click to skip
-      </div>
-      {/* Animated bottom strip */}
-      <div style={{ position:'absolute', bottom:0, left:0, right:0, height:9, overflow:'hidden' }}>
-        <div style={{
-          display:'flex', gap:0, width:'calc(100vw + 96px)',
-          height:'100%',
-          animation:'blockScroll 0.35s linear infinite',
-        }}>
-          {Array.from({length:160}).map((_,i) => (
-            <div key={i} style={{
-              width:16, height:'100%', flexShrink:0,
-              background: i % 3 === 0 ? '#3d4560' : i % 3 === 1 ? '#5f6e90' : '#8090b2',
-            }} />
-          ))}
-        </div>
       </div>
     </div>
   );
