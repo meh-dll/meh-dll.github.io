@@ -728,11 +728,14 @@ const SkillsContent = () => {
     { label:'🔓 Web Security', skills:['OWASP Top 10','XSS','SQLi','SSRF','IDOR','CSRF','XXE'] },
   ];
   return (
-    <div style={{ padding:6, fontFamily:WIN95_FONT, fontSize:11 }}>
+    <div style={{ padding:6, fontFamily:WIN95_FONT, fontSize:10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0 10px' }}>
       {cats.map(cat => (
-        <div key={cat.label} style={{ marginBottom:10 }}>
-          <SectionBar95>{cat.label}</SectionBar95>
-          <div style={{ display:'flex', flexWrap:'wrap', gap:4, paddingLeft:4 }}>
+        <div key={cat.label} style={{ marginBottom:6 }}>
+          <div style={{
+            fontFamily:WIN95_FONT, fontSize:10, fontWeight:'bold',
+            padding:'2px 5px', background:'#000080', color:'#fff', marginBottom:4,
+          }}>{cat.label}</div>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:3, paddingLeft:2 }}>
             {cat.skills.map(s => <SkillBadge95 key={s} label={s} />)}
           </div>
         </div>
