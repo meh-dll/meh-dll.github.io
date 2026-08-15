@@ -1290,6 +1290,19 @@ function playChime() {
   } catch (e) {}
 }
 
+/* Stylised, non-Microsoft "flag" mark — 2×2 skewed panes in an off-palette,
+   no gradient dither, no Windows wordmark. Reused by the boot screen. */
+const M3hOSLogo = ({ size = 84 }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" style={{ display:'block', filter:'drop-shadow(2px 3px 3px rgba(0,0,0,0.45))' }}>
+    <g transform="skewY(-8)">
+      <rect x="8"  y="10" width="38" height="35" fill="#00e5c7" />
+      <rect x="50" y="10" width="38" height="35" fill="#ff4fd8" />
+      <rect x="8"  y="49" width="38" height="35" fill="#5b5bff" />
+      <rect x="50" y="49" width="38" height="35" fill="#ffcc00" />
+    </g>
+  </svg>
+);
+
 const BootScreen = ({ onComplete }) => {
   const [loaded, setLoaded] = useState(false);
   const timerRef = useRef(null);
@@ -1298,23 +1311,31 @@ const BootScreen = ({ onComplete }) => {
     playChime();
     timerRef.current = setTimeout(() => {
       setLoaded(true);
-      setTimeout(onComplete, 700);
-    }, 4500);
+      setTimeout(onComplete, 300);
+    }, 1700);
     return () => clearTimeout(timerRef.current);
   }, []);
 
-  const skip = () => { clearTimeout(timerRef.current); setLoaded(true); setTimeout(onComplete, 300); };
+  const skip = () => { clearTimeout(timerRef.current); setLoaded(true); setTimeout(onComplete, 200); };
 
   return (
     <div onClick={skip} style={{
       position:'fixed', inset:0,
-      background:'#000',
-      backgroundImage:'url(icons/win95_boot.jpg)',
-      backgroundSize:'cover', backgroundPosition:'center',
+      background:'linear-gradient(160deg, #0b1740 0%, #1c3a8a 45%, #3d6fd6 75%, #7fb3ff 100%)',
       cursor:'default', userSelect:'none',
-      opacity: loaded ? 0 : 1, transition:'opacity 0.7s ease',
+      opacity: loaded ? 0 : 1, transition:'opacity 0.4s ease',
       overflow:'hidden',
+      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16,
     }}>
+      <M3hOSLogo size={88} />
+      <div style={{ textAlign:'center' }}>
+        <div style={{ fontFamily:'Arial,sans-serif', fontSize:30, fontWeight:'bold', fontStyle:'italic', color:'#fff', letterSpacing:0.5 }}>
+          meh.dll <span style={{ color:'#ffcc00' }}>95</span>
+        </div>
+      </div>
+      <div style={{ position:'absolute', bottom:24, fontFamily:WIN95_FONT, fontSize:11, color:'rgba(255,255,255,0.7)' }}>
+        Click to skip
+      </div>
       {/* Animated bottom strip */}
       <div style={{ position:'absolute', bottom:0, left:0, right:0, height:9, overflow:'hidden' }}>
         <div style={{
