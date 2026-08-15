@@ -146,12 +146,13 @@ const DesktopIcon95 = ({ id, label, selected, onSelect, onDoubleClick, iconScale
       style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3, padding:4,
         cursor:'default', userSelect:'none', width:78 }}
     >
-      <img
-        src={src}
-        width={px} height={px}
-        style={{ imageRendering:'pixelated', display:'block', filter:'drop-shadow(1px 2px 1px rgba(0,0,0,0.6))' }}
-        draggable={false}
-      />
+      <div style={{ width:px, height:px, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        <img
+          src={src}
+          style={{ maxWidth:px, maxHeight:px, width:'auto', height:'auto', imageRendering:'pixelated', display:'block', filter:'drop-shadow(1px 2px 1px rgba(0,0,0,0.6))' }}
+          draggable={false}
+        />
+      </div>
       <span style={{
         fontFamily: WIN95_FONT, fontSize:11, color:'var(--mos-text)',
         textShadow:'1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000',
@@ -311,7 +312,9 @@ const Win95Window = ({
       >
         <span style={{ display:'flex', alignItems:'center', gap:4, fontFamily:WIN95_FONT, fontSize:11, color:'#fff', fontWeight:'bold' }}>
           {SECTION_ICONS[id]
-            ? <img src={SECTION_ICONS[id]} width={14} height={14} style={{ imageRendering:'pixelated', flexShrink:0 }} draggable={false} />
+            ? <span style={{ width:14, height:14, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <img src={SECTION_ICONS[id]} style={{ maxWidth:14, maxHeight:14, width:'auto', height:'auto', imageRendering:'pixelated' }} draggable={false} />
+              </span>
             : <span style={{ fontSize:13 }}>{icon}</span>
           }
           {title}
@@ -403,7 +406,9 @@ const TaskBtn = ({ win, active, onClick }) => {
       }}
     >
       {SECTION_ICONS[win.id]
-        ? <img src={SECTION_ICONS[win.id]} width={16} height={16} style={{ imageRendering:'pixelated', flexShrink:0 }} draggable={false} />
+        ? <span style={{ width:16, height:16, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <img src={SECTION_ICONS[win.id]} style={{ maxWidth:16, maxHeight:16, width:'auto', height:'auto', imageRendering:'pixelated' }} draggable={false} />
+          </span>
         : <span style={{ fontSize:12, flexShrink:0 }}>{win.icon}</span>
       }
       <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{win.title}</span>
@@ -432,7 +437,7 @@ const QuickLaunchBtn = ({ id, title, onClick }) => {
         borderRadius:1,
       }}
     >
-      <img src={src} width={20} height={20} style={{ imageRendering:'pixelated' }} draggable={false} />
+      <img src={src} style={{ maxWidth:20, maxHeight:20, width:'auto', height:'auto', imageRendering:'pixelated' }} draggable={false} />
     </div>
   );
 };
