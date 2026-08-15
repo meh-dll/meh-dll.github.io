@@ -186,24 +186,24 @@ const Btn95 = ({ children, onClick, style = {}, disabled = false }) => {
 const Input95 = ({ value, onChange, placeholder, style = {}, readOnly }) => (
   <input
     value={value} onChange={onChange} placeholder={placeholder} readOnly={readOnly}
-    style={{ fontFamily: WIN95_FONT, fontSize:11, background:'#fff',
+    style={{ fontFamily: WIN95_FONT, fontSize:11, background:'var(--mos-panel-deep)', color:'var(--mos-text)',
       padding:'2px 4px', outline:'none', border:'none', ...insetBorder, ...style }}
   />
 );
 
 /* ── Tab strip ── */
 const TabStrip95 = ({ tabs, active, onSelect }) => (
-  <div style={{ display:'flex', borderBottom:'2px solid #808080', userSelect:'none' }}>
+  <div style={{ display:'flex', borderBottom:'2px solid var(--mos-border-dark)', userSelect:'none' }}>
     {tabs.map((tab, i) => (
       <div key={tab} onClick={() => onSelect(i)} style={{
-        fontFamily: WIN95_FONT, fontSize:11, padding:'3px 12px',
+        fontFamily: WIN95_FONT, fontSize:11, padding:'3px 12px', color:'var(--mos-text)',
         cursor:'default', position:'relative', zIndex: active === i ? 1 : 0,
         marginBottom: active === i ? -2 : 0,
-        background: active === i ? SILVER : '#a8a8a8',
-        borderTop: active === i ? '2px solid #fff' : '1px solid #808080',
-        borderLeft: active === i ? '2px solid #fff' : '1px solid #808080',
-        borderRight: active === i ? '2px solid #808080' : '1px solid #808080',
-        borderBottom: active === i ? 'none' : '2px solid #808080',
+        background: active === i ? SILVER : 'var(--mos-panel-deep)',
+        borderTop: active === i ? '2px solid var(--mos-border-light)' : '1px solid var(--mos-border-dark)',
+        borderLeft: active === i ? '2px solid var(--mos-border-light)' : '1px solid var(--mos-border-dark)',
+        borderRight: active === i ? '2px solid var(--mos-border-dark)' : '1px solid var(--mos-border-dark)',
+        borderBottom: active === i ? 'none' : '2px solid var(--mos-border-dark)',
         marginLeft: i > 0 ? -1 : 0,
       }}>{tab}</div>
     ))}
@@ -213,8 +213,8 @@ const TabStrip95 = ({ tabs, active, onSelect }) => (
 /* ── Skill badge ── */
 const SkillBadge95 = ({ label, dim }) => (
   <span style={{
-    fontFamily: WIN95_FONT, fontSize:10, padding:'2px 6px',
-    background: dim ? '#a0a0a0' : SILVER,
+    fontFamily: WIN95_FONT, fontSize:10, padding:'2px 6px', color:'var(--mos-text)',
+    background: dim ? 'var(--mos-panel-deep)' : SILVER,
     ...thinRaised, display:'inline-block',
     cursor:'default', whiteSpace:'nowrap', userSelect:'none',
   }}>{label}</span>
@@ -224,7 +224,7 @@ const SkillBadge95 = ({ label, dim }) => (
 const SectionBar95 = ({ children }) => (
   <div style={{
     fontFamily: WIN95_FONT, fontSize:11, fontWeight:'bold',
-    padding:'2px 6px', background:'#000080', color:'#fff', marginBottom:6, marginTop:4,
+    padding:'2px 6px', background:'var(--mos-accent)', color:'#fff', marginBottom:6, marginTop:4,
   }}>{children}</div>
 );
 
@@ -232,8 +232,8 @@ const SectionBar95 = ({ children }) => (
 const ListRow95 = ({ selected, onClick, children }) => (
   <div onClick={onClick} style={{
     display:'flex', alignItems:'center', gap:6, padding:'3px 4px',
-    cursor:'default', background: selected ? '#000080' : 'transparent',
-    color: selected ? '#fff' : '#000', fontFamily: WIN95_FONT, fontSize:11,
+    cursor:'default', background: selected ? 'var(--mos-accent)' : 'transparent',
+    color: selected ? '#fff' : 'var(--mos-text)', fontFamily: WIN95_FONT, fontSize:11,
     userSelect:'none',
   }}>{children}</div>
 );
@@ -247,7 +247,7 @@ const MenuWord = ({ children }) => {
       onMouseLeave={() => setHov(false)}
       style={{
         fontFamily: WIN95_FONT, fontSize:11, padding:'2px 6px', cursor:'default',
-        background: hov ? '#000080' : 'transparent', color: hov ? '#fff' : '#000',
+        background: hov ? 'var(--mos-accent)' : 'transparent', color: hov ? '#fff' : 'var(--mos-text)',
       }}
     >{children}</span>
   );
@@ -286,7 +286,7 @@ const Win95Window = ({
     <div
       onMouseDown={() => onFocus(id)}
       style={{ position:'absolute', ...pos, display:'flex', flexDirection:'column',
-        background: SILVER, border:'1px solid #c0c0c0', boxShadow:'1px 1px 1px 1px #222222', zIndex,
+        background: SILVER, border:'1px solid var(--mos-border-dark)', boxShadow:'0 2px 10px rgba(0,0,0,0.6)', zIndex,
         maxWidth:'100%' }}
     >
       {/* Resize handles */}
@@ -303,7 +303,7 @@ const Win95Window = ({
           if (!isMaximized && !isMobile) onDragStart(id, e.clientX, e.clientY);
         }}
         style={{
-          background: isFocused ? '#000080' : '#7b7b7b',
+          background: isFocused ? 'var(--mos-accent)' : 'var(--mos-panel-2)',
           height:22, display:'flex', alignItems:'center',
           justifyContent:'space-between', padding:'0 3px 0 4px',
           cursor:'default', flexShrink:0, userSelect:'none',
@@ -321,7 +321,7 @@ const Win95Window = ({
             <button key={s} data-wbtn="1" onClick={fn} style={{
               width:18, height:16, fontFamily:'Arial', fontSize: s === '✕' ? 11 : 10,
               fontWeight: s === '✕' ? 'bold' : 'normal',
-              background: SILVER, cursor:'default', outline:'none', border:'none',
+              background: SILVER, color:'var(--mos-text)', cursor:'default', outline:'none', border:'none',
               display:'flex', alignItems:'center', justifyContent:'center',
               ...raisedBorder, padding:0, lineHeight:1, flexShrink:0,
             }}>{s}</button>
@@ -331,20 +331,20 @@ const Win95Window = ({
 
       {/* Menu bar */}
       <div style={{
-        height:20, background: SILVER, borderBottom:'1px solid #808080',
+        height:20, background: SILVER, borderBottom:'1px solid var(--mos-border-dark)',
         display:'flex', alignItems:'center', padding:'0 2px', flexShrink:0,
       }}>
         {['File','Edit','View','Help'].map(m => <MenuWord key={m}>{m}</MenuWord>)}
       </div>
 
       {/* Content */}
-      <div style={{ flex:1, overflow:'auto', background: contentBg, margin:'0 5px 5px 5px', borderTop:'solid 2px #777777', borderLeft:'solid 2px #777777', borderRight:'solid 1px #fff', borderBottom:'solid 1px #fff', padding: contentPad }}>
+      <div style={{ flex:1, overflow:'auto', background: contentBg, margin:'0 5px 5px 5px', borderTop:'solid 2px var(--mos-border-dark)', borderLeft:'solid 2px var(--mos-border-dark)', borderRight:'solid 1px var(--mos-border-light)', borderBottom:'solid 1px var(--mos-border-light)', padding: contentPad }}>
         {children}
       </div>
 
       {/* Status bar */}
-      <div style={{ height:18, background: SILVER, borderTop:'1px solid #808080', display:'flex', alignItems:'center', padding:'0 4px', gap:4, flexShrink:0 }}>
-        <div style={{ ...thinInset, padding:'0 6px', fontFamily:WIN95_FONT, fontSize:10, flex:1 }}>{statusText}</div>
+      <div style={{ height:18, background: SILVER, borderTop:'1px solid var(--mos-border-dark)', display:'flex', alignItems:'center', padding:'0 4px', gap:4, flexShrink:0 }}>
+        <div style={{ ...thinInset, padding:'0 6px', fontFamily:WIN95_FONT, fontSize:10, flex:1, color:'var(--mos-text-dim)' }}>{statusText}</div>
       </div>
     </div>
   );
@@ -493,8 +493,8 @@ const StartMenuItem = ({ item, onClose, onShutdown }) => {
       onClick={() => { if (item.id === 'shutdown') onShutdown(); onClose(); }}
       style={{
         padding:'3px 8px 3px 4px', display:'flex', alignItems:'center', gap:6,
-        cursor:'default', background: hov ? '#000080' : 'transparent',
-        color: hov ? '#fff' : '#000', minHeight:40,
+        cursor:'default', background: hov ? 'var(--mos-accent)' : 'transparent',
+        color: hov ? '#fff' : 'var(--mos-text)', minHeight:40,
       }}
     >
       <div style={{ width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
@@ -524,12 +524,12 @@ const Win95StartMenu = ({ onClose, onShutdown }) => {
         position:'fixed', bottom:28, left:0, width:230,
         background: SILVER, zIndex:10000,
         display:'flex', boxShadow:'2px 2px 4px rgba(0,0,0,0.5)',
-        border:'2px solid', borderColor:'#fff #808080 #808080 #fff',
+        border:'2px solid', borderColor:'var(--mos-border-light) var(--mos-border-dark) var(--mos-border-dark) var(--mos-border-light)',
       }}
     >
-      {/* Sidebar — dark grey with Windows 95 branding */}
+      {/* Sidebar — MehOS branding */}
       <div style={{
-        width:30, background:'#808080', display:'flex',
+        width:30, background:'var(--mos-panel-deep)', display:'flex',
         flexDirection:'column', alignItems:'center', justifyContent:'flex-end',
         paddingBottom:4, flexShrink:0, overflow:'hidden', position:'relative',
       }}>
@@ -537,15 +537,15 @@ const Win95StartMenu = ({ onClose, onShutdown }) => {
           writingMode:'vertical-rl', transform:'rotate(180deg)',
           userSelect:'none', lineHeight:1, display:'flex', flexDirection:'row', alignItems:'baseline',
         }}>
-          <span style={{ fontFamily:'Arial,sans-serif', fontSize:13, fontWeight:'bold', fontStyle:'italic', color:'#fff' }}>Windows</span>
-          <span style={{ fontFamily:'Arial,sans-serif', fontSize:20, fontWeight:'bold', fontStyle:'italic', color:'#ffff00' }}>95</span>
+          <span style={{ fontFamily:'Arial,sans-serif', fontSize:13, fontWeight:'bold', fontStyle:'italic', color:'var(--mos-text)' }}>Meh</span>
+          <span style={{ fontFamily:'Arial,sans-serif', fontSize:20, fontWeight:'bold', fontStyle:'italic', color:'var(--mos-accent-cyan)' }}>OS</span>
         </div>
       </div>
       {/* Items */}
       <div style={{ flex:1, padding:'2px 0', background: SILVER }}>
         {items.map((item, i) => {
           if (item.divider) return (
-            <div key={i} style={{ margin:'2px 4px', borderTop:'1px solid #808080', borderBottom:'1px solid #fff' }} />
+            <div key={i} style={{ margin:'2px 4px', borderTop:'1px solid var(--mos-border-dark)', borderBottom:'1px solid var(--mos-border-light)' }} />
           );
           return <StartMenuItem key={i} item={item} onClose={onClose} onShutdown={onShutdown} />;
         })}
@@ -563,7 +563,7 @@ const CtxItem = ({ label }) => {
       onMouseLeave={() => setHov(false)}
       style={{
         padding:'4px 20px', fontFamily:WIN95_FONT, fontSize:11, cursor:'default',
-        background: hov ? '#000080' : 'transparent', color: hov ? '#fff' : '#000',
+        background: hov ? 'var(--mos-accent)' : 'transparent', color: hov ? '#fff' : 'var(--mos-text)',
       }}
     >{label}</div>
   );
@@ -584,7 +584,7 @@ const Win95ContextMenu = ({ x, y, onClose }) => {
       onClick={onClose}
     >
       {items.map((item, i) => {
-        if (item.divider) return <div key={i} style={{ height:1, background:'#808080', margin:'2px 0' }} />;
+        if (item.divider) return <div key={i} style={{ height:1, background:'var(--mos-border-dark)', margin:'2px 0' }} />;
         return <CtxItem key={i} label={item.label} />;
       })}
     </div>
@@ -598,12 +598,12 @@ const Win95ContextMenu = ({ x, y, onClose }) => {
 
 /* ── Readme (positioning line, open on load) ── */
 const ReadmeContent = () => (
-  <div style={{ padding:12, fontFamily:"'Courier New',monospace", fontSize:12, background:'#fff', color:'#000', lineHeight:1.7 }}>
-    <div style={{ fontWeight:'bold', fontSize:13, marginBottom:8 }}>M3hDLL — Information Security Analyst &amp; Penetration Tester</div>
+  <div style={{ padding:12, fontFamily:"'Courier New',monospace", fontSize:12, background:'var(--mos-panel-deep)', color:'var(--mos-text)', lineHeight:1.7 }}>
+    <div style={{ fontWeight:'bold', fontSize:13, marginBottom:8, color:'var(--mos-accent-cyan)' }}>M3hDLL — Information Security Analyst &amp; Penetration Tester</div>
     <div style={{ marginBottom:12 }}>
       Offensive security, web &amp; Android application testing, reverse engineering, and CTF competitor.
     </div>
-    <div style={{ color:'#555', fontSize:11 }}>
+    <div style={{ color:'var(--mos-text-dim)', fontSize:11 }}>
       Double-click a desktop icon to explore — start with CTF for the headline result.
     </div>
   </div>
@@ -638,21 +638,21 @@ const AboutContent = () => {
   }, []);
 
   return (
-    <div style={{ padding:8, fontFamily:WIN95_FONT, fontSize:11, background:'#c0c0c0' }}>
+    <div style={{ padding:8, fontFamily:WIN95_FONT, fontSize:11, background:'var(--mos-panel)', color:'var(--mos-text)' }}>
       <div style={{ display:'flex', gap:12, marginBottom:12 }}>
-        <div style={{ flexShrink:0, ...insetBorder, width:50, height:50, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+        <div style={{ flexShrink:0, ...insetBorder, width:50, height:50, background:'var(--mos-panel-deep)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
           <canvas ref={avatarRef} width={50} height={50} style={{ imageRendering:'pixelated' }} />
         </div>
         <div>
           <div style={{ fontSize:13, fontWeight:'bold', marginBottom:2 }}>M3hDLL</div>
-          <div style={{ color:'#000080', marginBottom:6, fontWeight:'bold', fontSize:11 }}>Information Security Analyst &amp; Penetration Tester</div>
-          <div style={{ lineHeight:1.6, color:'#222', fontFamily:BODY_FONT, fontSize:12 }}>
+          <div style={{ color:'var(--mos-accent-cyan)', marginBottom:6, fontWeight:'bold', fontSize:11 }}>Information Security Analyst &amp; Penetration Tester</div>
+          <div style={{ lineHeight:1.6, color:'var(--mos-text)', fontFamily:BODY_FONT, fontSize:12 }}>
             Information security analyst and penetration tester with hands-on experience in web and Android application security, cloud security assessment, SIEM evaluation, and reverse engineering. Active CTF competitor and self-directed learner focused on offensive security. Comfortable across the stack from smali-level Android teardown to cloud IAM boundary analysis.
           </div>
         </div>
       </div>
 
-      <div style={{ borderTop:'1px solid #808080', paddingTop:8, marginBottom:10 }}>
+      <div style={{ borderTop:'1px solid var(--mos-border-dark)', paddingTop:8, marginBottom:10 }}>
         <div style={{ fontWeight:'bold', marginBottom:6 }}>🌐 Platforms</div>
         <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
           {[
@@ -666,9 +666,9 @@ const AboutContent = () => {
         </div>
       </div>
 
-      <div style={{ borderTop:'1px solid #808080', paddingTop:8 }}>
+      <div style={{ borderTop:'1px solid var(--mos-border-dark)', paddingTop:8 }}>
         <div style={{ fontWeight:'bold', marginBottom:6 }}>⚡ Core Competencies</div>
-        <div style={{ lineHeight:1.7, color:'#333', fontFamily:BODY_FONT, fontSize:12 }}>
+        <div style={{ lineHeight:1.7, color:'var(--mos-text)', fontFamily:BODY_FONT, fontSize:12 }}>
           Penetration testing &amp; technical report writing, security awareness programme delivery, SIEM deployment &amp; evaluation, AWS cloud security assessments, web application security testing, Android application reverse engineering, and cross-team vulnerability remediation.
         </div>
       </div>
@@ -683,14 +683,14 @@ const ProjectsContent = () => {
     {
       icon: '🔑',
       name: 'Android system provider credential exposure (CWE-798)',
-      status: 'Informative', statusColor: '#8a6d00',
+      status: 'Informative', statusColor: '#a37f00',
       desc: "Reverse-engineered pre-installed ColorOS system applications on a current-generation Android device. Identified an exported system ContentProvider missing its signature readPermission, allowing any zero-permission application to read its backing database — which contained hard-coded production cloud credentials in cleartext.\n\nBuilt a zero-permission proof-of-concept app to confirm the read occurred at an untrusted application UID, then mapped the credential's full IAM access boundary read-only and non-destructively, deliberately stopping short of accessing any production data. Live credentials redacted.\n\nTechniques: exported-provider enumeration, permission-boundary comparison across sibling providers, ContentResolver PoC, IAM policy boundary analysis.\n\nDisclosure: reported to the vendor's bug bounty programme; closed as Informative (assessed as previously known to the vendor's security team).",
       tags: ['Android','CWE-798','IAM','Bug Bounty'],
     },
     {
       icon: '🌐',
       name: 'Android deep-link WebView JSBridge exposure',
-      status: 'Duplicate (confirmed)', statusColor: '#555',
+      status: 'Duplicate (confirmed)', statusColor: '#544a8c',
       desc: "Traced a full exploit chain through smali in a pre-installed ColorOS media application: an exported BROWSABLE deep-link handler loaded an attacker-controlled URL into a WebView with a privileged JSBridge pre-registered, exposing persistent device identifiers and the app's local key-value store to any web page.\n\nConfirmed the bridge was bound to the attacker context using Frida instrumentation, and was transparent in the report about the emulator architecture limitation affecting certain native resolvers.\n\nTechniques: smali analysis, deep-link routing analysis, WebView/JSBridge security review, Frida dynamic instrumentation.\n\nDisclosure: reported to the vendor's bug bounty programme; independently discovered, closed as a duplicate of an earlier report (bug confirmed by the programme).",
       tags: ['Android','WebView','Frida','Bug Bounty'],
     },
@@ -711,8 +711,8 @@ const ProjectsContent = () => {
   ];
   const item = research[selected];
   return (
-    <div style={{ display:'flex', height:'100%', fontFamily:WIN95_FONT, fontSize:11 }}>
-      <div style={{ width:200, borderRight:'2px solid #808080', overflow:'auto', flexShrink:0 }}>
+    <div style={{ display:'flex', height:'100%', fontFamily:WIN95_FONT, fontSize:11, background:'var(--mos-panel)', color:'var(--mos-text)' }}>
+      <div style={{ width:200, borderRight:'2px solid var(--mos-border-dark)', overflow:'auto', flexShrink:0 }}>
         {research.map((r, i) => (
           <ListRow95 key={i} selected={selected === i} onClick={() => setSelected(i)}>
             <span style={{ fontSize:16 }}>{r.icon}</span>
@@ -726,17 +726,17 @@ const ProjectsContent = () => {
           <span style={{ flex:1 }}>{item.name}</span>
         </div>
         <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
-          {item.date && <span style={{ color:'#555', fontSize:10 }}>📅 {item.date}</span>}
+          {item.date && <span style={{ color:'var(--mos-text-dim)', fontSize:10 }}>📅 {item.date}</span>}
           {item.status && (
             <span style={{ fontFamily:WIN95_FONT, fontSize:10, fontWeight:'bold', color:'#fff', background:item.statusColor, padding:'1px 6px' }}>
               {item.status}
             </span>
           )}
         </div>
-        <div style={{ lineHeight:1.7, marginBottom:10, color:'#333', whiteSpace:'pre-line', fontFamily:BODY_FONT, fontSize:12 }}>{item.desc}</div>
+        <div style={{ lineHeight:1.7, marginBottom:10, color:'var(--mos-text)', whiteSpace:'pre-line', fontFamily:BODY_FONT, fontSize:12 }}>{item.desc}</div>
         <div style={{ marginBottom:10 }}>
           {item.tags.map(t => (
-            <span key={t} style={{ fontFamily:WIN95_FONT, fontSize:10, background:'#000080', color:'#fff', padding:'1px 5px', marginRight:4, marginBottom:4, display:'inline-block' }}>{t}</span>
+            <span key={t} style={{ fontFamily:WIN95_FONT, fontSize:10, background:'var(--mos-accent-blue)', color:'#fff', padding:'1px 5px', marginRight:4, marginBottom:4, display:'inline-block' }}>{t}</span>
           ))}
         </div>
         {item.repoPrivate && <Btn95 disabled style={{ opacity:0.5, cursor:'default' }}>🔒 Private Repository</Btn95>}
@@ -756,12 +756,12 @@ const SkillsContent = () => {
     { label:'🔓 Web Security', skills:['OWASP Top 10','XSS','SQLi','SSRF','IDOR','CSRF','XXE'] },
   ];
   return (
-    <div style={{ padding:6, fontFamily:WIN95_FONT, fontSize:10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0 10px' }}>
+    <div style={{ padding:6, fontFamily:WIN95_FONT, fontSize:10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0 10px', background:'var(--mos-panel)', color:'var(--mos-text)' }}>
       {cats.map(cat => (
         <div key={cat.label} style={{ marginBottom:6 }}>
           <div style={{
             fontFamily:WIN95_FONT, fontSize:10, fontWeight:'bold',
-            padding:'2px 5px', background:'#000080', color:'#fff', marginBottom:4,
+            padding:'2px 5px', background:'var(--mos-accent)', color:'#fff', marginBottom:4,
           }}>{cat.label}</div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:3, paddingLeft:2 }}>
             {cat.skills.map(s => <SkillBadge95 key={s} label={s} />)}
@@ -782,15 +782,15 @@ const ContactContent = () => {
     { icon:'🟥', label:'TryHackMe', val:'{REDACTED}', href:'#', btn:'THM Profile' },
   ];
   return (
-    <div style={{ padding:10, fontFamily:WIN95_FONT, fontSize:11 }}>
-      <div style={{ marginBottom:12, color:'#444', lineHeight:1.6, fontFamily:BODY_FONT, fontSize:12 }}>
+    <div style={{ padding:10, fontFamily:WIN95_FONT, fontSize:11, background:'var(--mos-panel)', color:'var(--mos-text)' }}>
+      <div style={{ marginBottom:12, color:'var(--mos-text)', lineHeight:1.6, fontFamily:BODY_FONT, fontSize:12 }}>
         Feel free to reach out for collaboration, security assessments, or just to talk shop. Response time: usually &lt;24h.
       </div>
       {links.map(l => (
         <div key={l.label} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
           <span style={{ fontSize:18, width:24, textAlign:'center', flexShrink:0 }}>{l.icon}</span>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:10, color:'#666', marginBottom:2 }}>{l.label}</div>
+            <div style={{ fontSize:10, color:'var(--mos-text-dim)', marginBottom:2 }}>{l.label}</div>
             <Input95 value={l.val} readOnly style={{ width:'100%' }} />
           </div>
           <Btn95 onClick={() => window.open(l.href, '_blank')} style={{ flexShrink:0, padding:'3px 8px' }}>
@@ -818,21 +818,21 @@ const CTFContent = () => {
     },
   ];
   return (
-    <div style={{ padding:8, fontFamily:WIN95_FONT, fontSize:11 }}>
+    <div style={{ padding:8, fontFamily:WIN95_FONT, fontSize:11, background:'var(--mos-panel)', color:'var(--mos-text)' }}>
       <SectionBar95>🏆 Competitive CTF Placements</SectionBar95>
       {placements.map(p => (
-        <div key={p.event} style={{ ...thinInset, background:'#fff', padding:'10px 12px', marginBottom:10 }}>
+        <div key={p.event} style={{ ...thinInset, background:'var(--mos-panel-deep)', padding:'10px 12px', marginBottom:10 }}>
           <div style={{ fontWeight:'bold', fontSize:12, marginBottom:8 }}>{p.event}</div>
           <div style={{ display:'flex', alignItems:'baseline', gap:8, marginBottom:6 }}>
-            <span style={{ fontSize:32, fontWeight:'bold', color:'#000080', lineHeight:1, fontFamily:WIN95_FONT }}>{p.rank}</span>
-            <span style={{ fontSize:14, color:'#555' }}>/ {p.total.toLocaleString()} teams</span>
-            <span style={{ marginLeft:'auto', background:'#000080', color:'#fff', fontSize:10, fontWeight:'bold', padding:'3px 7px' }}>TOP {p.pct}%</span>
+            <span style={{ fontSize:32, fontWeight:'bold', color:'var(--mos-accent-cyan)', lineHeight:1, fontFamily:WIN95_FONT }}>{p.rank}</span>
+            <span style={{ fontSize:14, color:'var(--mos-text-dim)' }}>/ {p.total.toLocaleString()} teams</span>
+            <span style={{ marginLeft:'auto', background:'var(--mos-accent)', color:'#fff', fontSize:10, fontWeight:'bold', padding:'3px 7px' }}>TOP {p.pct}%</span>
           </div>
-          <div style={{ fontSize:10, color:'#333', marginBottom: p.note ? 6 : 0 }}>Team: <b>{p.team}</b></div>
-          {p.note && <div style={{ fontSize:12, color:'#555', lineHeight:1.6, fontFamily:BODY_FONT }}>{p.note}</div>}
+          <div style={{ fontSize:10, color:'var(--mos-text)', marginBottom: p.note ? 6 : 0 }}>Team: <b>{p.team}</b></div>
+          {p.note && <div style={{ fontSize:12, color:'var(--mos-text-dim)', lineHeight:1.6, fontFamily:BODY_FONT }}>{p.note}</div>}
         </div>
       ))}
-      <div style={{ fontSize:11, color:'#444', marginBottom:10, lineHeight:1.6 }}>
+      <div style={{ fontSize:11, color:'var(--mos-text)', marginBottom:10, lineHeight:1.6 }}>
         CTF crews: <b>OwlSec</b> · <b>ZeroSec (0sec)</b>
       </div>
       {/* CTFtime team URL here */}
@@ -1093,12 +1093,12 @@ const ResumeContent = () => {
   const [showPreview, setShowPreview] = useState(false);
   return (
     <>
-    <div style={{ padding:10, fontFamily:WIN95_FONT, fontSize:11 }}>
+    <div style={{ padding:10, fontFamily:WIN95_FONT, fontSize:11, background:'var(--mos-panel)', color:'var(--mos-text)' }}>
       <div style={{ display:'flex', gap:12, marginBottom:14, alignItems:'flex-start' }}>
         <div style={{ fontSize:40, lineHeight:1 }}>📄</div>
         <div>
           <div style={{ fontSize:13, fontWeight:'bold', marginBottom:4 }}>Resume / CV — Information Security Analyst &amp; Penetration Tester</div>
-          <div style={{ color:'#444', lineHeight:1.7 }}>
+          <div style={{ color:'var(--mos-text-dim)', lineHeight:1.7 }}>
             Format: PDF (A4)<br/>
             Includes: Experience, Research, Skills
           </div>
@@ -1711,7 +1711,7 @@ const Desktop = ({ tweaks }) => {
             onMaximize={() => maximizeWindow(w.id)}
             onDragStart={startDrag}
             onResizeStart={startResize}
-            contentBg="#c0c0c0"
+            contentBg="var(--mos-panel)"
             contentPad={0}
             statusText={isMobile ? w.title : `${w.title} — Double-click icons to open`}
           >
