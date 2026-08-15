@@ -126,13 +126,13 @@ const thinInset    = { borderStyle:'solid', borderWidth:1, borderColor:'var(--mo
 
 /* ── Authentic Win95 icons — extracted from system DLLs ── */
 const SECTION_ICONS = {
-  about:    'icons/w95_16.png',  // My Computer
-  research: 'icons/w95_47.png',  // Folder with tools
-  skills:   'icons/w95_22.png',  // Colorful gears / Control Panel
-  readme:   'icons/w95_60.png',  // Notepad
-  contact:  'icons/w95_14.png',  // Globe / Internet
-  ctf:      'icons/w98_certificate.png', // Certificate with seal
-  resume:   'icons/w95_2.png',   // WordPad document
+  about:    'icons/mehos_icon_about.png',
+  research: 'icons/mehos_icon_research.png',
+  skills:   'icons/mehos_icon_skills.png',
+  readme:   'icons/w95_60.png',  // Notepad — no MehOS sprite for this one
+  contact:  'icons/mehos_icon_contact.png',
+  ctf:      'icons/mehos_icon_ctf.png',
+  resume:   'icons/mehos_icon_resume.png',
 };
 
 /* ── Desktop icon ── */
@@ -153,10 +153,10 @@ const DesktopIcon95 = ({ id, label, selected, onSelect, onDoubleClick, iconScale
         draggable={false}
       />
       <span style={{
-        fontFamily: WIN95_FONT, fontSize:11, color:'#fff',
+        fontFamily: WIN95_FONT, fontSize:11, color:'var(--mos-text)',
         textShadow:'1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000',
         textAlign:'center', maxWidth:76, lineHeight:1.3, padding:'1px 3px',
-        background: selected ? '#000080' : 'transparent',
+        background: selected ? 'var(--mos-accent)' : 'transparent',
       }}>{label}</span>
     </div>
   );
