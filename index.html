@@ -388,8 +388,8 @@ const TaskBtn = ({ win, active, onClick }) => {
 /* Quick Launch icons for the taskbar */
 const QUICK_LAUNCH = [
   { title:'About Me',  id:'about'    },
-  { title:'Projects',  id:'projects' },
-  { title:'Skills',    id:'skills'   },
+  { title:'CTF',       id:'ctf'      },
+  { title:'Research',  id:'research' },
 ];
 const QuickLaunchBtn = ({ id, title, onClick }) => {
   const [hov, setHov] = useState(false);
@@ -707,13 +707,6 @@ const SkillsContent = () => {
   );
 };
 
-/* ── Write-Ups ── */
-const WriteUpsContent = () => (
-  <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%', fontFamily:WIN95_FONT, fontSize:13, color:'#555' }}>
-    📝 Coming soon
-  </div>
-);
-
 /* ── Contact ── */
 const ContactContent = () => {
   const links = [
@@ -744,61 +737,41 @@ const ContactContent = () => {
   );
 };
 
-/* ── CTF Achievements ── */
+/* ── CTF ── */
 const CTFContent = () => {
-  const stats = [
-    { v:'#42',       l:'HTB Global Rank' },
-    { v:'37',        l:'Machines Pwned' },
-    { v:'12',        l:'CTF Event Wins' },
-    { v:'Pro Hacker',l:'HTB Rank' },
-  ];
-  const badges = [
-    { icon:'🏅', label:'Pro Hacker', color:'#FFD700' },
-    { icon:'🌊', label:'Offshore',   color:'#4FC3F7' },
-    { icon:'🔍', label:'OSINT',      color:'#81C784' },
-    { icon:'🔬', label:'Forensics',  color:'#CE93D8' },
-    { icon:'🕸️', label:'Web Guru',  color:'#FF8A65' },
-    { icon:'🔐', label:'Crypto',     color:'#80DEEA' },
-    { icon:'💥', label:'Pwn Master', color:'#EF9A9A' },
-    { icon:'🔧', label:'Rev Eng',    color:'#BCAAA4' },
-  ];
-  const recent = [
-    { icon:'🚩', name:'HTB — Shadow',           pts:'+40pts',  date:'Apr 2025' },
-    { icon:'🚩', name:'picoCTF 2025 — Top 5%',  pts:'+150pts', date:'Mar 2025' },
-    { icon:'🚩', name:'HTB Cyberapocalypse',     pts:'+200pts', date:'Feb 2025' },
+  const placements = [
+    {
+      event: 'NahamCon CTF',
+      rank: 17, total: 2363, pct: '0.7',
+      team: 'OwlSec',
+      note: 'National-scale, well-known competition. Solved challenges across web, pwn, reversing, and misc categories.',
+    },
+    {
+      event: 'DawgCTF',
+      rank: 61, total: 730, pct: '8.5',
+      team: 'OwlSec',
+    },
   ];
   return (
-    <div style={{ padding:6, fontFamily:WIN95_FONT, fontSize:11 }}>
-      <div style={{ display:'flex', gap:6, marginBottom:10 }}>
-        {stats.map(s => (
-          <div key={s.l} style={{ flex:1, ...thinInset, background:'#fff', padding:'6px 4px', textAlign:'center' }}>
-            <div style={{ fontSize:16, fontWeight:'bold', color:'#000080', fontFamily:WIN95_FONT }}>{s.v}</div>
-            <div style={{ fontSize:9, color:'#555', lineHeight:1.3 }}>{s.l}</div>
+    <div style={{ padding:8, fontFamily:WIN95_FONT, fontSize:11 }}>
+      <SectionBar95>🏆 Competitive CTF Placements</SectionBar95>
+      {placements.map(p => (
+        <div key={p.event} style={{ ...thinInset, background:'#fff', padding:'10px 12px', marginBottom:10 }}>
+          <div style={{ fontWeight:'bold', fontSize:12, marginBottom:8 }}>{p.event}</div>
+          <div style={{ display:'flex', alignItems:'baseline', gap:8, marginBottom:6 }}>
+            <span style={{ fontSize:32, fontWeight:'bold', color:'#000080', lineHeight:1, fontFamily:WIN95_FONT }}>{p.rank}</span>
+            <span style={{ fontSize:14, color:'#555' }}>/ {p.total.toLocaleString()} teams</span>
+            <span style={{ marginLeft:'auto', background:'#000080', color:'#fff', fontSize:10, fontWeight:'bold', padding:'3px 7px' }}>TOP {p.pct}%</span>
           </div>
-        ))}
-      </div>
-
-      <SectionBar95>🏆 Badges</SectionBar95>
-      <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:10, padding:'4px 0' }}>
-        {badges.map(b => (
-          <div key={b.label} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, width:52 }}>
-            <div style={{ width:38, height:38, borderRadius:'50%', background:b.color, border:'2px solid #888', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>
-              {b.icon}
-            </div>
-            <span style={{ fontSize:9, textAlign:'center', lineHeight:1.2 }}>{b.label}</span>
-          </div>
-        ))}
-      </div>
-
-      <SectionBar95>⏱ Recent Activity</SectionBar95>
-      {recent.map((r, i) => (
-        <div key={i} style={{ display:'flex', alignItems:'center', gap:8, padding:'3px 4px', borderBottom:'1px solid #ddd' }}>
-          <span>{r.icon}</span>
-          <span style={{ flex:1 }}>{r.name}</span>
-          <span style={{ color:'#006600', fontWeight:'bold' }}>{r.pts}</span>
-          <span style={{ color:'#888', fontSize:10 }}>{r.date}</span>
+          <div style={{ fontSize:10, color:'#333', marginBottom: p.note ? 6 : 0 }}>Team: <b>{p.team}</b></div>
+          {p.note && <div style={{ fontSize:11, color:'#555', lineHeight:1.6, fontFamily:"'MS Sans Serif',Tahoma,sans-serif" }}>{p.note}</div>}
         </div>
       ))}
+      <div style={{ fontSize:11, color:'#444', marginBottom:10, lineHeight:1.6 }}>
+        CTF crews: <b>OwlSec</b> · <b>ZeroSec (0sec)</b>
+      </div>
+      {/* CTFtime team URL here */}
+      <Btn95 disabled style={{ opacity:0.5, cursor:'default' }}>🔗 CTFtime Team Profile</Btn95>
     </div>
   );
 };
@@ -1331,23 +1304,22 @@ const BootScreen = ({ onComplete }) => {
 
 const WINDOW_DEFS = [
   { id:'readme',   title:'readme.txt - Notepad', icon:'📝', width:400, height:200, Content: ReadmeContent },
-  { id:'about',    title:'About Me',        icon:'👤', width:460, height:360, Content: AboutContent },
-  { id:'projects', title:'Projects',         icon:'💾', width:560, height:420, Content: ProjectsContent },
-  { id:'skills',   title:'Skills',           icon:'⚙️', width:460, height:400, Content: SkillsContent },
-  { id:'writeups', title:'Write-Ups',        icon:'📝', width:520, height:420, Content: WriteUpsContent },
-  { id:'contact',  title:'Contact',          icon:'📧', width:380, height:380, Content: ContactContent },
-  { id:'ctf',      title:'CTF Achievements', icon:'🏆', width:480, height:400, Content: CTFContent },
-  { id:'resume',   title:'Resume',           icon:'📄', width:400, height:380, Content: ResumeContent },
+  { id:'about',    title:'About Me',    icon:'👤', width:460, height:360, Content: AboutContent },
+  { id:'ctf',      title:'CTF',         icon:'🏆', width:480, height:430, Content: CTFContent },
+  { id:'research', title:'Research',    icon:'💾', width:620, height:460, Content: ProjectsContent },
+  { id:'skills',   title:'Skills',      icon:'⚙️', width:420, height:320, Content: SkillsContent },
+  { id:'resume',   title:'Resume',      icon:'📄', width:400, height:380, Content: ResumeContent },
+  { id:'contact',  title:'Contact',     icon:'📧', width:380, height:380, Content: ContactContent },
 ];
 
+/* Icons ordered top-to-bottom: strongest evidence highest */
 const ICON_LAYOUT = [
-  { id:'about',    x:20, y:20 },
-  { id:'projects', x:20, y:120 },
-  { id:'skills',   x:20, y:220 },
-  { id:'writeups', x:20, y:320 },
-  { id:'ctf',      x:20, y:420 },
-  { id:'resume',   x:110, y:20 },
-  { id:'contact',  x:110, y:120 },
+  { id:'about',    x:20, y:20  },
+  { id:'ctf',      x:20, y:120 },
+  { id:'research', x:20, y:220 },
+  { id:'skills',   x:20, y:320 },
+  { id:'resume',   x:20, y:420 },
+  { id:'contact',  x:20, y:520 },
 ];
 
 const Desktop = ({ tweaks }) => {
