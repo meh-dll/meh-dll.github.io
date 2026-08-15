@@ -46,10 +46,6 @@ body { font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-ser
   0%   { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
 }
-@keyframes bootCursorBlink {
-  0%, 49%   { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
 @keyframes fadeInOut {
   0%,100% { opacity: 0.3; } 50% { opacity: 1; }
 }
@@ -1291,49 +1287,25 @@ function playChime() {
   } catch (e) {}
 }
 
-/* Stylised, non-Microsoft "flag" mark — 2×2 skewed panes in an off-palette,
-   no gradient dither, no Windows wordmark. Reused by the boot screen. */
-/* Stylised, non-Microsoft "flag" mark — waving quadrants in an off-palette
-   plus a generated pixel-dither fly, drawn from a small loop rather than
-   hand-authored path data. No Windows wordmark anywhere. */
-const MEH_FLAG_COLORS = ['#4dd9e8', '#b34de0', '#3d5fe0', '#4dd977'];
-const MehFlagIcon = ({ width = 190, height = 150 }) => {
-  const ditherCols = 7, ditherRows = 6;
-  const dither = [];
-  for (let c = 0; c < ditherCols; c++) {
-    for (let r = 0; r < ditherRows; r++) {
-      const t = c / (ditherCols - 1);
-      dither.push({
-        x: c * 9 + (r % 2 ? 4 : 0),
-        y: r * 9,
-        s: 3 + t * 3,
-        o: 0.15 + t * 0.7,
-        fill: MEH_FLAG_COLORS[(c + r) % MEH_FLAG_COLORS.length],
-      });
-    }
-  }
-  return (
-    <svg width={width} height={height} viewBox="0 0 190 150" style={{ display:'block', filter:'drop-shadow(0 0 18px rgba(120,180,255,0.35))' }}>
-      <g transform="translate(4,20) skewY(-6)">
-        {dither.map((d, i) => (
-          <rect key={i} x={d.x} y={d.y} width={d.s} height={d.s} fill={d.fill} opacity={d.o} />
-        ))}
-      </g>
-      <g transform="translate(66,10) skewY(-6)" stroke="#0a1230" strokeWidth="2">
-        <rect x="0"  y="0"  width="58" height="52" fill={MEH_FLAG_COLORS[0]} />
-        <rect x="62" y="0"  width="58" height="52" fill={MEH_FLAG_COLORS[1]} />
-        <rect x="0"  y="56" width="58" height="52" fill={MEH_FLAG_COLORS[2]} />
-        <rect x="62" y="56" width="58" height="52" fill={MEH_FLAG_COLORS[3]} />
-      </g>
-    </svg>
-  );
-};
+/* Boot splash: the artwork (wordmark, flag, CRT scanlines, panel, labels,
+   copyright/version) is the static image below — none of it is redrawn in
+   HTML/CSS. Only the loading bar and its percentage are live: the baked
+   region is masked with a black rectangle (the image's own background is
+   already pure black, so the mask is invisible) and a segmented bar is
+   drawn on top, positioned from the image's real pixel geometry. */
+const BOOT_IMG_W = 1200, BOOT_IMG_H = 630;
+/* Measured directly from icons/mehos_boot.jpg (fractions of image size),
+   with a small pad to fully cover the baked pixels' anti-aliased edges. */
+const BOOT_BAR_RECT = { left: 0.2342, top: 0.7873, width: 0.5850, height: 0.0524 };
+const BOOT_PCT_RECT = { left: 0.8275, top: 0.7905, width: 0.0608, height: 0.0397 };
 
 const BOOT_DURATION_MS = 1800;
 
 const BootScreen = ({ onComplete }) => {
   const [loaded, setLoaded] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [imgRect, setImgRect] = useState(null);
+  const imgRef = useRef(null);
   const rafRef = useRef(null);
   const startRef = useRef(null);
   const doneRef = useRef(false);
@@ -1360,10 +1332,40 @@ const BootScreen = ({ onComplete }) => {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [finish]);
 
+  const measure = useCallback(() => {
+    if (!imgRef.current) return;
+    /* getBoundingClientRect() on an object-fit:contain <img> returns the
+       element's own box, not the letterboxed visible image area — compute
+       the actual "contain" rect from the box + the image's real aspect ratio. */
+    const box = imgRef.current.getBoundingClientRect();
+    const imgAspect = BOOT_IMG_W / BOOT_IMG_H;
+    const boxAspect = box.width / box.height;
+    let w, h;
+    if (boxAspect > imgAspect) { h = box.height; w = h * imgAspect; }
+    else { w = box.width; h = w / imgAspect; }
+    const left = box.left + (box.width - w) / 2;
+    const top = box.top + (box.height - h) / 2;
+    setImgRect({ left, top, width: w, height: h });
+  }, []);
+
+  useEffect(() => {
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [measure]);
+
   const skip = () => { doneRef.current = false; finish(); };
 
   const segCount = 34;
   const filledSegs = Math.round((progress / 100) * segCount);
+
+  const rectStyle = (frac, padPx = 0) => imgRect ? {
+    position: 'fixed',
+    left: imgRect.left + frac.left * imgRect.width - padPx,
+    top: imgRect.top + frac.top * imgRect.height - padPx,
+    width: frac.width * imgRect.width + padPx * 2,
+    height: frac.height * imgRect.height + padPx * 2,
+  } : { display: 'none' };
 
   return (
     <div onClick={skip} style={{
@@ -1372,68 +1374,47 @@ const BootScreen = ({ onComplete }) => {
       cursor:'default', userSelect:'none',
       opacity: loaded ? 0 : 1, transition:'opacity 0.3s ease',
       overflow:'hidden',
-      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14,
-      fontFamily:"'VT323',monospace",
     }}>
-      {/* CRT scanlines */}
-      <div style={{
-        position:'absolute', inset:0, pointerEvents:'none',
-        backgroundImage:'repeating-linear-gradient(rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px)',
-      }} />
+      <img
+        ref={imgRef}
+        src="icons/mehos_boot.jpg"
+        width={BOOT_IMG_W} height={BOOT_IMG_H}
+        onLoad={measure}
+        draggable={false}
+        style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain' }}
+      />
 
-      <MehFlagIcon width={180} height={140} />
+      {/* Mask over the baked-in bar + percentage (blends into the image's own black bg) */}
+      <div style={{ ...rectStyle(BOOT_BAR_RECT, 3), background:'#000' }} />
+      <div style={{ ...rectStyle(BOOT_PCT_RECT, 3), background:'#000' }} />
 
-      <div style={{
-        fontSize:88, fontWeight:'bold', letterSpacing:2, lineHeight:1,
-        background:'linear-gradient(180deg, #ffffff 0%, #bcd4ff 55%, #7fa8e8 100%)',
-        WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent',
-        WebkitTextStroke:'2px #16295c',
-        textShadow:'0 0 24px rgba(120,180,255,0.55), 0 0 48px rgba(120,180,255,0.3)',
-      }}>MehOS</div>
-
-      <div style={{ display:'flex', alignItems:'center', gap:12, width:340, maxWidth:'80vw' }}>
-        <div style={{ flex:1, height:2, background:'#ff4fd8' }} />
-        <span style={{ fontSize:20, color:'#ff4fd8', letterSpacing:2 }}>meh.dll</span>
-        <div style={{ flex:1, height:2, background:'#ff4fd8' }} />
-      </div>
-
-      <div style={{ fontSize:22, color:'#4dd9e8', letterSpacing:1 }}>loading system...</div>
-
-      <div style={{
-        width:420, maxWidth:'86vw', border:'1px solid rgba(150,190,255,0.5)',
-        background:'rgba(10,16,40,0.5)', padding:'10px 14px', display:'flex', flexDirection:'column', gap:8,
-      }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <span style={{ fontSize:18, color:'#4dd9e8', flexShrink:0 }}>Loading:</span>
-          <div style={{ flex:1, display:'flex', gap:2 }}>
-            {Array.from({ length: segCount }).map((_, i) => (
-              <div key={i} style={{
-                flex:1, height:14,
-                background: i < filledSegs ? '#3355ee' : 'rgba(255,255,255,0.06)',
-                boxShadow: i < filledSegs ? 'inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,20,0.4)' : 'none',
-              }} />
-            ))}
-          </div>
-          <span style={{ fontSize:18, color:'#e8f0ff', minWidth:42, textAlign:'right', fontVariantNumeric:'tabular-nums' }}>
-            {Math.round(progress)}%
-          </span>
+      {/* Live segmented bar, drawn in place of the baked one */}
+      {imgRect && (
+        <div style={{ ...rectStyle(BOOT_BAR_RECT), display:'flex', alignItems:'center', gap:Math.max(1, imgRect.width * 0.0015) }}>
+          {Array.from({ length: segCount }).map((_, i) => (
+            <div key={i} style={{
+              flex:1, alignSelf:'stretch',
+              background: i < filledSegs ? '#0a12e6' : 'transparent',
+              boxShadow: i < filledSegs ? 'inset 0 1px 0 rgba(160,180,255,0.6), inset 0 -2px 0 rgba(0,0,20,0.5)' : 'none',
+            }} />
+          ))}
         </div>
-        <div style={{ borderTop:'1px solid rgba(150,190,255,0.25)', paddingTop:8, fontSize:18, color:'#5fdc6a', display:'flex' }}>
-          C:\&gt; booting MehOS...&nbsp;
-          <span style={{ animation:'bootCursorBlink 1s step-end infinite' }}>_</span>
+      )}
+
+      {/* Live percentage counter, drawn in place of the baked "100%" */}
+      {imgRect && (
+        <div style={{
+          ...rectStyle(BOOT_PCT_RECT),
+          display:'flex', alignItems:'center', justifyContent:'flex-start',
+          fontFamily:"'Courier New',monospace", fontWeight:'bold',
+          fontSize: Math.max(10, imgRect.height * 0.045),
+          color:'#39f2df', fontVariantNumeric:'tabular-nums',
+        }}>
+          {Math.round(progress)}%
         </div>
-      </div>
+      )}
 
-      <div style={{
-        position:'absolute', bottom:14, left:18, right:18,
-        display:'flex', justifyContent:'space-between',
-        fontSize:14, color:'rgba(150,190,255,0.7)', letterSpacing:0.5,
-      }}>
-        <span>Copyright (C) 1995 MehOS Team</span>
-        <span>v0.95.5b (Build 1995)</span>
-      </div>
-
-      <div style={{ position:'absolute', top:14, right:18, fontFamily:WIN95_FONT, fontSize:10, color:'rgba(150,190,255,0.5)' }}>
+      <div style={{ position:'absolute', top:14, right:18, fontFamily:WIN95_FONT, fontSize:10, color:'rgba(150,190,255,0.6)' }}>
         Click to skip
       </div>
     </div>
