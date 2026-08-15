@@ -117,9 +117,9 @@ const thinInset    = { borderStyle:'solid', borderWidth:1, borderColor:'#808080 
 /* ── Authentic Win95 icons — extracted from system DLLs ── */
 const SECTION_ICONS = {
   about:    'icons/w95_16.png',  // My Computer
-  projects: 'icons/w95_47.png',  // Folder with tools
+  research: 'icons/w95_47.png',  // Folder with tools
   skills:   'icons/w95_22.png',  // Colorful gears / Control Panel
-  writeups: 'icons/w95_60.png',  // Notepad
+  readme:   'icons/w95_60.png',  // Notepad
   contact:  'icons/w95_14.png',  // Globe / Internet
   ctf:      'icons/w98_certificate.png', // Certificate with seal
   resume:   'icons/w95_2.png',   // WordPad document
@@ -567,6 +567,19 @@ const Win95ContextMenu = ({ x, y, onClose }) => {
 /* ════════════════════════════════════════════
    WINDOW CONTENT — all 7 sections
    ════════════════════════════════════════════ */
+
+/* ── Readme (positioning line, open on load) ── */
+const ReadmeContent = () => (
+  <div style={{ padding:12, fontFamily:"'Courier New',monospace", fontSize:12, background:'#fff', color:'#000', lineHeight:1.7 }}>
+    <div style={{ fontWeight:'bold', fontSize:13, marginBottom:8 }}>M3hDLL — Information Security Analyst &amp; Penetration Tester</div>
+    <div style={{ marginBottom:12 }}>
+      Offensive security, web &amp; Android application testing, reverse engineering, and CTF competitor.
+    </div>
+    <div style={{ color:'#555', fontSize:11 }}>
+      Double-click a desktop icon to explore — start with CTF for the headline result.
+    </div>
+  </div>
+);
 
 /* ── About Me ── */
 const AboutContent = () => {
@@ -1321,6 +1334,7 @@ const BootScreen = ({ onComplete }) => {
    ════════════════════════════════════════════ */
 
 const WINDOW_DEFS = [
+  { id:'readme',   title:'readme.txt - Notepad', icon:'📝', width:400, height:200, Content: ReadmeContent },
   { id:'about',    title:'About Me',        icon:'👤', width:460, height:360, Content: AboutContent },
   { id:'projects', title:'Projects',         icon:'💾', width:560, height:420, Content: ProjectsContent },
   { id:'skills',   title:'Skills',           icon:'⚙️', width:460, height:400, Content: SkillsContent },
@@ -1343,13 +1357,17 @@ const ICON_LAYOUT = [
 const Desktop = ({ tweaks }) => {
   const initWindows = () => WINDOW_DEFS.map(d => ({
     ...d,
-    isOpen: false, isMinimized: false, isMaximized: false,
-    position: { x:80, y:60 }, zIndex: 100,
+    isOpen: d.id === 'readme',
+    isMinimized: false, isMaximized: false,
+    position: d.id === 'readme'
+      ? { x: Math.max(20, Math.round((window.innerWidth - d.width) / 2)), y: 70 }
+      : { x:80, y:60 },
+    zIndex: d.id === 'readme' ? 101 : 100,
   }));
 
   const [windows, setWindows] = useState(initWindows);
-  const [maxZ, setMaxZ] = useState(100);
-  const [activeId, setActiveId] = useState(null);
+  const [maxZ, setMaxZ] = useState(101);
+  const [activeId, setActiveId] = useState('readme');
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState(null);
