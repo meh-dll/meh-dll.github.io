@@ -163,14 +163,27 @@ const Tag = ({ label, color = 'var(--mos-accent-blue)' }) => (
    rather than shipped as dead ends.
    ════════════════════════════════════════════ */
 
+/* pos values are hand-calibrated (% of the full spine_frame_full.png,
+   885x1777) against the real frame art using the drag-drop positioner tool */
 const NAV_ITEMS = [
-  { id:'about',    label:'ABOUT',    icon:'icons/mehos_icon_about.png',    rowNormal:'icons/spine_about_normal.png',    rowSelected:'icons/spine_about_selected.png' },
-  { id:'ctf',      label:'CTF',      icon:'icons/mehos_icon_ctf.png',      rowNormal:'icons/spine_ctf_normal.png',      rowSelected:'icons/spine_ctf_selected.png' },
-  { id:'research', label:'RESEARCH', icon:'icons/mehos_icon_research.png', rowNormal:'icons/spine_research_normal.png', rowSelected:'icons/spine_research_selected.png' },
-  { id:'skills',   label:'SKILLS',   icon:'icons/mehos_icon_skills.png',   rowNormal:'icons/spine_skills_normal.png',   rowSelected:'icons/spine_skills_selected.png' },
-  { id:'resume',   label:'RESUME',   icon:'icons/mehos_icon_resume.png',   rowNormal:'icons/spine_resume_normal.png',   rowSelected:'icons/spine_resume_selected.png' },
-  { id:'contact',  label:'CONTACT',  icon:'icons/mehos_icon_contact.png',  rowNormal:'icons/spine_contact_normal.png',  rowSelected:'icons/spine_contact_selected.png' },
+  { id:'about',    label:'ABOUT',    icon:'icons/mehos_icon_about.png',    rowNormal:'icons/spine_about_normal.png',    rowSelected:'icons/spine_about_selected.png',
+    pos:{ left:21.46, top:6.59,  width:58.84, height:10.95 } },
+  { id:'ctf',      label:'CTF',      icon:'icons/mehos_icon_ctf.png',      rowNormal:'icons/spine_ctf_normal.png',      rowSelected:'icons/spine_ctf_selected.png',
+    pos:{ left:20.05, top:14.05, width:61.10, height:10.57 } },
+  { id:'research', label:'RESEARCH', icon:'icons/mehos_icon_research.png', rowNormal:'icons/spine_research_normal.png', rowSelected:'icons/spine_research_selected.png',
+    pos:{ left:20.66, top:22.31, width:59.34, height:9.07 } },
+  { id:'skills',   label:'SKILLS',   icon:'icons/mehos_icon_skills.png',   rowNormal:'icons/spine_skills_normal.png',   rowSelected:'icons/spine_skills_selected.png',
+    pos:{ left:20.36, top:29.50, width:60.10, height:10.07 } },
+  { id:'resume',   label:'RESUME',   icon:'icons/mehos_icon_resume.png',   rowNormal:'icons/spine_resume_normal.png',   rowSelected:'icons/spine_resume_selected.png',
+    pos:{ left:20.26, top:36.97, width:60.60, height:10.07 } },
+  { id:'contact',  label:'CONTACT',  icon:'icons/mehos_icon_contact.png',  rowNormal:'icons/spine_contact_normal.png',  rowSelected:'icons/spine_contact_selected.png',
+    pos:{ left:21.66, top:44.89, width:57.33, height:9.45 } },
 ];
+
+/* Bottom edge of the visible spine, as % of the full frame height.
+   Currently cropped right after CONTACT; will extend once Darkroom/
+   Hangar/Terminal/Bin have real content and get appended above. */
+const SPINE_CROP_PCT = 55;
 
 const PANEL_LABELS = {
   about:    'ABOUT://IDENTITY',
@@ -185,35 +198,38 @@ const PANEL_LABELS = {
    CONTROL SPINE — fixed left nav
    ════════════════════════════════════════════ */
 
-const ConsoleSpine = ({ active, onSelect }) => (
-  <div style={{ width:224, flexShrink:0, display:'flex', flexDirection:'column', userSelect:'none' }}>
-    <img src="icons/spine_header.png" style={{ width:'100%', display:'block' }} draggable={false} />
-    <div style={{ position:'relative', marginTop:2 }}>
+const SPINE_FRAME_W = 885, SPINE_FRAME_H = 1777;
+
+const ConsoleSpine = ({ active, onSelect }) => {
+  const width = 224;
+  const fullHeight = width * (SPINE_FRAME_H / SPINE_FRAME_W);
+  const visibleHeight = fullHeight * (SPINE_CROP_PCT / 100);
+  return (
+    <div style={{ width, height:visibleHeight, overflow:'hidden', flexShrink:0, userSelect:'none' }}>
       <div style={{
-        position:'absolute', inset:0,
-        backgroundImage:"url('icons/spine_rail_left.png')", backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-      }} />
-      <div style={{
-        position:'absolute', inset:0,
-        backgroundImage:"url('icons/spine_rail_right.png')", backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-      }} />
-      <div style={{ position:'relative', display:'flex', flexDirection:'column', gap:4, padding:'0 5%' }}>
+        position:'relative', width, height:fullHeight,
+        backgroundImage:"url('icons/spine_frame_full.png')", backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+      }}>
         {NAV_ITEMS.map(item => {
           const isActive = item.id === active;
+          const p = item.pos;
           return (
             <button
               key={item.id}
               onClick={() => onSelect(item.id)}
-              style={{ border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0 }}
+              style={{
+                position:'absolute', left:`${p.left}%`, top:`${p.top}%`, width:`${p.width}%`, height:`${p.height}%`,
+                border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0,
+              }}
             >
-              <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', display:'block' }} draggable={false} />
+              <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', height:'100%', display:'block' }} draggable={false} />
             </button>
           );
         })}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* Compact horizontal version for narrow viewports */
 const ConsoleSpineMobile = ({ active, onSelect }) => (
