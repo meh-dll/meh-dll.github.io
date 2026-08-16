@@ -219,36 +219,38 @@ const PANEL_LABELS = {
 
 const SPINE_FRAME_W = 885, SPINE_FRAME_H = 1777;
 
-const ConsoleSpine = ({ active, onSelect }) => {
-  const width = 224;
-  const fullHeight = width * (SPINE_FRAME_H / SPINE_FRAME_W);
-  const visibleHeight = fullHeight * (SPINE_CROP_PCT / 100);
-  return (
-    <div style={{ width, height:visibleHeight, overflow:'hidden', flexShrink:0, userSelect:'none' }}>
-      <div style={{
-        position:'relative', width, height:fullHeight,
-        backgroundImage:"url('icons/spine_frame_full.png')", backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-      }}>
-        {NAV_ITEMS.map(item => {
-          const isActive = item.id === active;
-          const p = item.pos;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSelect(item.id)}
-              style={{
-                position:'absolute', left:`${p.left}%`, top:`${p.top}%`, width:`${p.width}%`, height:`${p.height}%`,
-                border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0,
-              }}
-            >
-              <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', height:'100%', display:'block' }} draggable={false} />
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+/* Scales uniformly (aspect ratio preserved — never stretched) to the full
+   height of the console column, so the nav reaches the bottom instead of
+   leaving dead space beneath it. Growing by height makes it wider than the
+   old fixed 224px, so it's pulled left to hug the edge and give that width
+   back to the middle column. */
+const ConsoleSpine = ({ active, onSelect }) => (
+  <div style={{
+    alignSelf:'stretch', flexShrink:0, userSelect:'none',
+    height:'100%', aspectRatio:`${SPINE_FRAME_W} / ${SPINE_FRAME_H}`,
+    marginLeft:-18,
+    position:'relative',
+    backgroundImage:"url('icons/spine_frame_full.png')",
+    backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+  }}>
+    {NAV_ITEMS.map(item => {
+      const isActive = item.id === active;
+      const p = item.pos;
+      return (
+        <button
+          key={item.id}
+          onClick={() => onSelect(item.id)}
+          style={{
+            position:'absolute', left:`${p.left}%`, top:`${p.top}%`, width:`${p.width}%`, height:`${p.height}%`,
+            border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0,
+          }}
+        >
+          <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', height:'100%', display:'block' }} draggable={false} />
+        </button>
+      );
+    })}
+  </div>
+);
 
 /* Compact horizontal version for narrow viewports */
 const ConsoleSpineMobile = ({ active, onSelect }) => (
