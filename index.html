@@ -1229,10 +1229,33 @@ const BootScreen = ({ onComplete }) => {
    MEHOS CONSOLE — main layout
    ════════════════════════════════════════════ */
 
+/* The desktop layout is built from fixed px measurements sized for a
+   ~1440x900 window. On larger monitors that leaves it sitting small in
+   a sea of wallpaper instead of filling the screen, so scale the whole
+   desktop layout up (never down — narrower windows use the mobile
+   layout instead) to fill the available viewport, capped so it doesn't
+   blow up into blurriness on ultra-wide/4K displays. */
+const DESKTOP_DESIGN_W = 1440, DESKTOP_DESIGN_H = 900, MAX_DESKTOP_SCALE = 1.8;
+const useDesktopScale = (enabled) => {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    if (!enabled) return;
+    const calc = () => {
+      const s = Math.min(window.innerWidth / DESKTOP_DESIGN_W, window.innerHeight / DESKTOP_DESIGN_H);
+      setScale(Math.max(1, Math.min(MAX_DESKTOP_SCALE, s)));
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, [enabled]);
+  return scale;
+};
+
 const MehConsole = ({ tweaks }) => {
   const [activeSection, setActiveSection] = useState('ctf');
   const [showCVPreview, setShowCVPreview] = useState(false);
   const isMobile = useIsMobile();
+  const desktopScale = useDesktopScale(!isMobile);
   const [time, setTime] = useState('');
   const [uptime, setUptime] = useState('0m');
   const sessionStartRef = useRef(Date.now());
@@ -1267,14 +1290,22 @@ const MehConsole = ({ tweaks }) => {
           </div>
         </>
       ) : (
-        <div style={{ flex:1, display:'flex', padding:'18px', gap:14, minHeight:0 }}>
-          <ConsoleSpine active={activeSection} onSelect={setActiveSection} />
-          <div style={{ flex:1, display:'flex', flexDirection:'column', gap:12, minWidth:0, minHeight:0 }}>
-            <TerminalPanel />
-            <ContentPanel active={activeSection} onPreviewCV={() => setShowCVPreview(true)} />
-            <BottomBar />
+        <div style={{
+          flex:1, display:'flex', justifyContent:'center', alignItems:'center', minHeight:0, overflow:'hidden',
+        }}>
+          <div style={{
+            width:DESKTOP_DESIGN_W, height:DESKTOP_DESIGN_H, flexShrink:0,
+            transform:`scale(${desktopScale})`,
+            display:'flex', padding:'18px', gap:14, minHeight:0, boxSizing:'border-box',
+          }}>
+            <ConsoleSpine active={activeSection} onSelect={setActiveSection} />
+            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:12, minWidth:0, minHeight:0 }}>
+              <TerminalPanel />
+              <ContentPanel active={activeSection} onPreviewCV={() => setShowCVPreview(true)} />
+              <BottomBar />
+            </div>
+            <StatusStack time={time} uptime={uptime} />
           </div>
-          <StatusStack time={time} uptime={uptime} />
         </div>
       )}
 
