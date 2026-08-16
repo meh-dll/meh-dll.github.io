@@ -164,12 +164,12 @@ const Tag = ({ label, color = 'var(--mos-accent-blue)' }) => (
    ════════════════════════════════════════════ */
 
 const NAV_ITEMS = [
-  { id:'about',    label:'ABOUT',    icon:'icons/mehos_icon_about.png' },
-  { id:'ctf',      label:'CTF',      icon:'icons/mehos_icon_ctf.png' },
-  { id:'research', label:'RESEARCH', icon:'icons/mehos_icon_research.png' },
-  { id:'skills',   label:'SKILLS',   icon:'icons/mehos_icon_skills.png' },
-  { id:'resume',   label:'RESUME',   icon:'icons/mehos_icon_resume.png' },
-  { id:'contact',  label:'CONTACT',  icon:'icons/mehos_icon_contact.png' },
+  { id:'about',    label:'ABOUT',    icon:'icons/mehos_icon_about.png',    rowNormal:'icons/spine_about_normal.png',    rowSelected:'icons/spine_about_selected.png' },
+  { id:'ctf',      label:'CTF',      icon:'icons/mehos_icon_ctf.png',      rowNormal:'icons/spine_ctf_normal.png',      rowSelected:'icons/spine_ctf_selected.png' },
+  { id:'research', label:'RESEARCH', icon:'icons/mehos_icon_research.png', rowNormal:'icons/spine_research_normal.png', rowSelected:'icons/spine_research_selected.png' },
+  { id:'skills',   label:'SKILLS',   icon:'icons/mehos_icon_skills.png',   rowNormal:'icons/spine_skills_normal.png',   rowSelected:'icons/spine_skills_selected.png' },
+  { id:'resume',   label:'RESUME',   icon:'icons/mehos_icon_resume.png',   rowNormal:'icons/spine_resume_normal.png',   rowSelected:'icons/spine_resume_selected.png' },
+  { id:'contact',  label:'CONTACT',  icon:'icons/mehos_icon_contact.png',  rowNormal:'icons/spine_contact_normal.png',  rowSelected:'icons/spine_contact_selected.png' },
 ];
 
 const PANEL_LABELS = {
@@ -185,58 +185,25 @@ const PANEL_LABELS = {
    CONTROL SPINE — fixed left nav
    ════════════════════════════════════════════ */
 
-const SPINE_HEADER_FRAC = 174 / 1141;
-const SPINE_ROW_FRAC = (1 - SPINE_HEADER_FRAC) / 6;
-
-const ConsoleSpine = ({ active, onSelect }) => {
-  const width = 224;
-  const height = Math.round(width * (1141 / 724));
-  return (
-    <div style={{
-      width, height, flexShrink:0,
-      backgroundImage:"url('icons/mehos_spine_nav.png')",
-      backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-      display:'flex', flexDirection:'column', userSelect:'none',
-    }}>
-      <div style={{
-        height: `${SPINE_HEADER_FRAC * 100}%`, flexShrink:0,
-        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-        fontFamily: MONO_FONT, color:'var(--mos-accent-cyan)', letterSpacing:1,
-      }}>
-        <div style={{ fontSize:13, fontWeight:'bold' }}>MehOS</div>
-        <div style={{ fontSize:9, color:'var(--mos-text-dim)' }}>CONTROL SPINE v0.95.5b</div>
-      </div>
+const ConsoleSpine = ({ active, onSelect }) => (
+  <div style={{ width:224, flexShrink:0, display:'flex', flexDirection:'column', userSelect:'none' }}>
+    <img src="icons/spine_header.png" style={{ width:'100%', display:'block' }} draggable={false} />
+    <div style={{ display:'flex', flexDirection:'column', gap:6, marginTop:6 }}>
       {NAV_ITEMS.map(item => {
         const isActive = item.id === active;
         return (
           <button
             key={item.id}
             onClick={() => onSelect(item.id)}
-            style={{
-              height: `${SPINE_ROW_FRAC * 100}%`, flexShrink:0,
-              display:'flex', alignItems:'center', gap:10, padding:'0 18px 0 22px',
-              background: isActive ? 'rgba(255,79,216,0.14)' : 'transparent',
-              boxShadow: isActive ? 'inset 0 0 22px rgba(255,79,216,0.35)' : 'none',
-              border:'none', cursor:'pointer', textAlign:'left',
-              transition:'background 0.15s',
-            }}
+            style={{ border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0 }}
           >
-            <img src={item.icon} style={{ width:22, height:22, objectFit:'contain', flexShrink:0, filter: isActive ? 'drop-shadow(0 0 4px var(--mos-accent))' : 'none' }} draggable={false} />
-            <span style={{
-              fontFamily: MONO_FONT, fontSize:12, fontWeight:'bold', letterSpacing:1,
-              color: isActive ? '#fff' : 'var(--mos-text)',
-            }}>{item.label}</span>
-            <span style={{
-              marginLeft:'auto', width:6, height:6, borderRadius:'50%', flexShrink:0,
-              background: isActive ? 'var(--mos-accent)' : 'var(--mos-accent-cyan)',
-              boxShadow: isActive ? '0 0 6px var(--mos-accent)' : 'none',
-            }} />
+            <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', display:'block' }} draggable={false} />
           </button>
         );
       })}
     </div>
-  );
-};
+  </div>
+);
 
 /* Compact horizontal version for narrow viewports */
 const ConsoleSpineMobile = ({ active, onSelect }) => (
