@@ -164,11 +164,12 @@ const Tag = ({ label, color = 'var(--mos-accent-blue)' }) => (
 );
 
 /* ════════════════════════════════════════════
-   NAV DATA — the 6 real sections only. The asset
-   pack included 5 more (Darkroom/Hangar/The
-   Company/Terminal/Bin) but nothing in this site
-   has real content for them, so they're left out
-   rather than shipped as dead ends.
+   NAV DATA — 10 of the 11 rows from the asset pack.
+   The Company was dropped at the user's request.
+   Darkroom/Hangar/Terminal/Bin are wired up
+   structurally (real position, real art) but have
+   no panel content yet — selecting them shows an
+   empty frame until that content is written.
    ════════════════════════════════════════════ */
 
 /* pos values are hand-calibrated (% of the full spine_frame_full.png,
@@ -186,12 +187,18 @@ const NAV_ITEMS = [
     pos:{ left:20.26, top:36.97, width:60.60, height:10.07 } },
   { id:'contact',  label:'CONTACT',  icon:'icons/mehos_icon_contact.png',  rowNormal:'icons/spine_contact_normal.png',  rowSelected:'icons/spine_contact_selected.png',
     pos:{ left:21.66, top:44.89, width:57.33, height:9.45 } },
+  { id:'darkroom', label:'DARKROOM', icon:'icons/mehos_icon_darkroom.png', rowNormal:'icons/spine_darkroom_normal.png', rowSelected:'icons/spine_darkroom_selected.png',
+    pos:{ left:21.21, top:52.69, width:58.34, height:9.20 } },
+  { id:'hangar',   label:'HANGAR',   icon:'icons/mehos_icon_hangar.png',   rowNormal:'icons/spine_hangar_normal.png',   rowSelected:'icons/spine_hangar_selected.png',
+    pos:{ left:18.45, top:59.11, width:63.61, height:10.57 } },
+  { id:'terminal', label:'TERMINAL', icon:'icons/mehos_icon_terminal.png', rowNormal:'icons/spine_terminal_normal.png', rowSelected:'icons/spine_terminal_selected.png',
+    pos:{ left:20.56, top:67.37, width:59.84, height:9.45 } },
+  { id:'bin',      label:'BIN',      icon:'icons/mehos_icon_bin.png',      rowNormal:'icons/spine_bin_normal.png',      rowSelected:'icons/spine_bin_selected.png',
+    pos:{ left:21.46, top:75.54, width:58.34, height:8.70 } },
 ];
 
-/* Bottom edge of the visible spine, as % of the full frame height.
-   Currently cropped right after CONTACT; will extend once Darkroom/
-   Hangar/Terminal/Bin have real content and get appended above. */
-const SPINE_CROP_PCT = 54;
+/* Bottom edge of the visible spine, as % of the full frame height. */
+const SPINE_CROP_PCT = 100;
 
 const PANEL_LABELS = {
   about:    'ABOUT://IDENTITY',
@@ -200,6 +207,10 @@ const PANEL_LABELS = {
   skills:   'SKILLS://LOADOUT',
   resume:   'RESUME://EXPORT',
   contact:  'CONTACT://CHANNELS',
+  darkroom: 'DARKROOM://',
+  hangar:   'HANGAR://',
+  terminal: 'TERMINAL://',
+  bin:      'BIN://',
 };
 
 /* ════════════════════════════════════════════
