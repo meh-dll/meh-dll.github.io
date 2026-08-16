@@ -277,7 +277,7 @@ const TerminalPanel = () => (
     position:'relative', width:'100%',
     backgroundImage:"url('icons/mehos_terminal_frame.png')",
     backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-    aspectRatio:'1448 / 420', minHeight:170, flexShrink:0,
+    aspectRatio:'1448 / 420', minHeight:170, maxHeight:210, flexShrink:0,
   }}>
     <div style={{
       position:'absolute', left:'6%', top:'22%', width:'88%', height:'70%',
@@ -568,7 +568,7 @@ const ContentPanel = ({ active, onPreviewCV }) => {
       }}>{PANEL_LABELS[active]}</div>
 
       <div style={{
-        position:'absolute', left:'6%', top:'13%', width:'88%', height:'82%', overflow:'auto',
+        position:'absolute', left:'6%', top:'13%', width:'85%', height:'82%', overflow:'auto',
         background:'rgba(6,5,18,0.55)', padding:'2%',
       }}>
         {active === 'resume' ? <ResumePanelContent onPreview={onPreviewCV} /> : (Comp && <Comp />)}
@@ -1255,9 +1255,9 @@ const MehConsole = ({ tweaks }) => {
           </div>
         </>
       ) : (
-        <div style={{ flex:1, display:'flex', padding:'24px', gap:18, minHeight:0 }}>
+        <div style={{ flex:1, display:'flex', padding:'18px', gap:14, minHeight:0 }}>
           <ConsoleSpine active={activeSection} onSelect={setActiveSection} />
-          <div style={{ flex:1, display:'flex', flexDirection:'column', gap:16, minWidth:0, minHeight:0 }}>
+          <div style={{ flex:1, display:'flex', flexDirection:'column', gap:12, minWidth:0, minHeight:0 }}>
             <TerminalPanel />
             <ContentPanel active={activeSection} onPreviewCV={() => setShowCVPreview(true)} />
             <BottomBar />
