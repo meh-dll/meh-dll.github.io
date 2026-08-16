@@ -614,66 +614,65 @@ const ContentPanel = ({ active, onPreviewCV }) => {
    RIGHT STATUS STACK — decorative HUD sidebar
    ════════════════════════════════════════════ */
 
-const StatusStack = ({ time, uptime }) => {
-  const width = 224;
-  const height = Math.round(width * (2172 / 724));
-  return (
-    <div style={{
-      width, height, flexShrink:0,
-      backgroundImage:"url('icons/mehos_status_frame.png')",
-      backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-      display:'flex', flexDirection:'column', fontFamily:MONO_FONT, userSelect:'none',
-      overflow:'hidden',
-    }}>
-      {/* header / clock */}
-      <div style={{ height:'15%', flexShrink:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ fontSize:11, color:'var(--mos-text-dim)', letterSpacing:1 }}>MehOS v0.95.5b</div>
-        <div style={{ fontSize:20, fontWeight:'bold', color:'var(--mos-accent-cyan)', letterSpacing:1 }}>{time}</div>
-      </div>
-      {/* system status icons */}
-      <div style={{ height:'9%', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', gap:16 }}>
-        <span title="Online" style={{ fontSize:14 }}>💚</span>
-        <span title="Secure" style={{ fontSize:14 }}>🛡️</span>
-        <span title="Locked" style={{ fontSize:14 }}>🔒</span>
-      </div>
-      {/* shell info */}
-      <div style={{ height:'13%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', gap:2, fontSize:9.5 }}>
-        <div style={{ color:'var(--mos-text-dim)' }}>SHELL INFO</div>
-        <div style={{ color:'var(--mos-text)' }}>shell: meh.exe</div>
-        <div style={{ color:'var(--mos-text)' }}>uptime: {uptime}</div>
-        <div style={{ color:'var(--mos-text)' }}>kernel: mehOS 1995</div>
-      </div>
-      {/* security */}
-      <div style={{ height:'13%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', gap:3, fontSize:9.5 }}>
-        <div style={{ color:'var(--mos-text-dim)' }}>SECURITY</div>
-        <div style={{ color:'var(--mos-accent-cyan)' }}>state: OPERATIONAL</div>
-        <div style={{ display:'flex', gap:2 }}>
-          {Array.from({ length: 16 }).map((_, i) => (
-            <div key={i} style={{ width:6, height:8, background:'var(--mos-accent-cyan)', opacity:0.85 }} />
-          ))}
-        </div>
-      </div>
-      {/* network (tall) */}
-      <div style={{ flex:1, padding:'6% 10%', display:'flex', flexDirection:'column', gap:6, fontSize:9.5, minHeight:0 }}>
-        <div style={{ color:'var(--mos-text-dim)' }}>NETWORK</div>
-        <div style={{ color:'var(--mos-text)' }}>link: uplink</div>
-        <div style={{ display:'flex', alignItems:'flex-end', gap:2, flex:1, minHeight:40 }}>
-          {Array.from({ length: 18 }).map((_, i) => (
-            <div key={i} style={{
-              flex:1, background:'var(--mos-accent-purple)',
-              height:`${20 + ((i * 37) % 70)}%`,
-              animation:`barPulse ${1.2 + (i % 5) * 0.15}s ease-in-out infinite`,
-            }} />
-          ))}
-        </div>
-      </div>
-      {/* notes footer */}
-      <div style={{ height:'12%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', fontSize:9, color:'var(--mos-accent-purple)', lineHeight:1.4 }}>
-        "Stay curious. Break things. Understand everything." — meh.dll
+/* The new asset pack ships each HUD block as its own ~4:3 card frame, which
+   can't tile down a 224px-wide column without overflowing the console height,
+   so this slot keeps the purpose-built tall stack frame. */
+const StatusStack = ({ time, uptime }) => (
+  <div style={{
+    width:224, flexShrink:0, alignSelf:'stretch',
+    backgroundImage:"url('icons/mehos_status_frame.png')",
+    backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+    display:'flex', flexDirection:'column', fontFamily:MONO_FONT, userSelect:'none',
+    overflow:'hidden',
+  }}>
+    {/* header / clock */}
+    <div style={{ height:'15%', flexShrink:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ fontSize:11, color:'var(--mos-text-dim)', letterSpacing:1 }}>MehOS v0.95.5b</div>
+      <div style={{ fontSize:20, fontWeight:'bold', color:'var(--mos-accent-cyan)', letterSpacing:1 }}>{time}</div>
+    </div>
+    {/* system status icons */}
+    <div style={{ height:'9%', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', gap:16 }}>
+      <span title="Online" style={{ fontSize:14 }}>💚</span>
+      <span title="Secure" style={{ fontSize:14 }}>🛡️</span>
+      <span title="Locked" style={{ fontSize:14 }}>🔒</span>
+    </div>
+    {/* shell info */}
+    <div style={{ height:'13%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', gap:2, fontSize:9.5 }}>
+      <div style={{ color:'var(--mos-text-dim)' }}>SHELL INFO</div>
+      <div style={{ color:'var(--mos-text)' }}>shell: meh.exe</div>
+      <div style={{ color:'var(--mos-text)' }}>uptime: {uptime}</div>
+      <div style={{ color:'var(--mos-text)' }}>kernel: mehOS 1995</div>
+    </div>
+    {/* security */}
+    <div style={{ height:'13%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', gap:3, fontSize:9.5 }}>
+      <div style={{ color:'var(--mos-text-dim)' }}>SECURITY</div>
+      <div style={{ color:'var(--mos-accent-cyan)' }}>state: OPERATIONAL</div>
+      <div style={{ display:'flex', gap:2 }}>
+        {Array.from({ length: 16 }).map((_, i) => (
+          <div key={i} style={{ width:6, height:8, background:'var(--mos-accent-cyan)', opacity:0.85 }} />
+        ))}
       </div>
     </div>
-  );
-};
+    {/* network (tall) */}
+    <div style={{ flex:1, padding:'6% 10%', display:'flex', flexDirection:'column', gap:6, fontSize:9.5, minHeight:0 }}>
+      <div style={{ color:'var(--mos-text-dim)' }}>NETWORK</div>
+      <div style={{ color:'var(--mos-text)' }}>link: uplink</div>
+      <div style={{ display:'flex', alignItems:'flex-end', gap:2, flex:1, minHeight:40 }}>
+        {Array.from({ length: 18 }).map((_, i) => (
+          <div key={i} style={{
+            flex:1, background:'var(--mos-accent-purple)',
+            height:`${20 + ((i * 37) % 70)}%`,
+            animation:`barPulse ${1.2 + (i % 5) * 0.15}s ease-in-out infinite`,
+          }} />
+        ))}
+      </div>
+    </div>
+    {/* notes footer */}
+    <div style={{ height:'12%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', fontSize:9, color:'var(--mos-accent-purple)', lineHeight:1.4 }}>
+      "Stay curious. Break things. Understand everything." — meh.dll
+    </div>
+  </div>
+);
 
 /* ════════════════════════════════════════════
    BOTTOM BAR — repurposed with real content
@@ -1250,26 +1249,36 @@ const BootScreen = ({ onComplete }) => {
    MEHOS CONSOLE — main layout
    ════════════════════════════════════════════ */
 
-const useDesktopScale = (enabled) => {
-  const [scale, setScale] = useState(1);
+/* Scale is driven by height alone and the design width is then derived from
+   the viewport, so the console always fills the screen edge to edge with no
+   letterboxing either side — the spine lands on the true left edge of the
+   page rather than on the edge of a centred fixed-width box. Scale is capped
+   so the art doesn't go soft, and floored so the middle column can't be
+   squeezed below a usable width on very tall/narrow windows. */
+const MIN_DESIGN_W = 1150;
+const useDesktopMetrics = (enabled) => {
+  const [m, setM] = useState({ scale:1, designW:DESKTOP_DESIGN_W });
   useEffect(() => {
     if (!enabled) return;
     const calc = () => {
-      const s = Math.min(window.innerWidth / DESKTOP_DESIGN_W, window.innerHeight / DESKTOP_DESIGN_H);
-      setScale(Math.max(1, Math.min(MAX_DESKTOP_SCALE, s)));
+      let scale = window.innerHeight / DESKTOP_DESIGN_H;
+      scale = Math.max(1, Math.min(MAX_DESKTOP_SCALE, scale));
+      scale = Math.min(scale, window.innerWidth / MIN_DESIGN_W);
+      scale = Math.max(scale, 0.1);
+      setM({ scale, designW: window.innerWidth / scale });
     };
     calc();
     window.addEventListener('resize', calc);
     return () => window.removeEventListener('resize', calc);
   }, [enabled]);
-  return scale;
+  return m;
 };
 
 const MehConsole = ({ tweaks }) => {
   const [activeSection, setActiveSection] = useState('ctf');
   const [showCVPreview, setShowCVPreview] = useState(false);
   const isMobile = useIsMobile();
-  const desktopScale = useDesktopScale(!isMobile);
+  const { scale: desktopScale, designW } = useDesktopMetrics(!isMobile);
   const [time, setTime] = useState('');
   const [uptime, setUptime] = useState('0m');
   const sessionStartRef = useRef(Date.now());
@@ -1304,12 +1313,11 @@ const MehConsole = ({ tweaks }) => {
           </div>
         </>
       ) : (
-        <div style={{
-          flex:1, display:'flex', justifyContent:'center', alignItems:'center', minHeight:0, overflow:'hidden',
-        }}>
+        <div style={{ flex:1, position:'relative', minHeight:0, overflow:'hidden' }}>
           <div style={{
-            width:DESKTOP_DESIGN_W, height:DESKTOP_DESIGN_H, flexShrink:0,
-            transform:`scale(${desktopScale})`,
+            position:'absolute', top:0, left:0,
+            width:designW, height:DESKTOP_DESIGN_H,
+            transform:`scale(${desktopScale})`, transformOrigin:'top left',
             display:'flex', padding:DESKTOP_PAD, gap:14, minHeight:0, boxSizing:'border-box',
           }}>
             <ConsoleSpine active={activeSection} onSelect={setActiveSection} />
