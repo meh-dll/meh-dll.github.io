@@ -217,18 +217,37 @@ const PANEL_LABELS = {
    CONTROL SPINE — fixed left nav
    ════════════════════════════════════════════ */
 
+/* The desktop layout is built from fixed px measurements sized for a
+   ~1440x900 window. On larger monitors that leaves it sitting small in
+   a sea of wallpaper instead of filling the screen, so the whole desktop
+   layout is transform-scaled up (never down — narrower windows use the
+   mobile layout instead) to fill the viewport, capped so it doesn't blow
+   up into blurriness on ultra-wide/4K displays. */
+const DESKTOP_DESIGN_W = 1440, DESKTOP_DESIGN_H = 900, MAX_DESKTOP_SCALE = 1.8;
+const DESKTOP_PAD = 18;
+
 const SPINE_FRAME_W = 885, SPINE_FRAME_H = 1777;
+
+/* The frame PNG carries ~15% transparent padding down its left side, so
+   the visible art sits well inside its own box. Offset by that gutter (plus
+   the console's own padding) to sit flush against the left edge. The design
+   box is a fixed size that's only transform-scaled, so this resolves to a
+   constant. */
+const SPINE_ART_LEFT_FRAC = 134 / SPINE_FRAME_W;
+const SPINE_DESIGN_H = DESKTOP_DESIGN_H - DESKTOP_PAD * 2;
+const SPINE_DESIGN_W = SPINE_DESIGN_H * (SPINE_FRAME_W / SPINE_FRAME_H);
+const SPINE_LEFT_SHIFT = -(DESKTOP_PAD + SPINE_DESIGN_W * SPINE_ART_LEFT_FRAC);
 
 /* Scales uniformly (aspect ratio preserved — never stretched) to the full
    height of the console column, so the nav reaches the bottom instead of
    leaving dead space beneath it. Growing by height makes it wider than the
-   old fixed 224px, so it's pulled left to hug the edge and give that width
-   back to the middle column. */
+   old fixed 224px; pulling it left both sits it flush to the edge and gives
+   that width back to the middle column. */
 const ConsoleSpine = ({ active, onSelect }) => (
   <div style={{
     alignSelf:'stretch', flexShrink:0, userSelect:'none',
     height:'100%', aspectRatio:`${SPINE_FRAME_W} / ${SPINE_FRAME_H}`,
-    marginLeft:-18,
+    marginLeft:SPINE_LEFT_SHIFT,
     position:'relative',
     backgroundImage:"url('icons/spine_frame_full.png')",
     backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
@@ -1231,13 +1250,6 @@ const BootScreen = ({ onComplete }) => {
    MEHOS CONSOLE — main layout
    ════════════════════════════════════════════ */
 
-/* The desktop layout is built from fixed px measurements sized for a
-   ~1440x900 window. On larger monitors that leaves it sitting small in
-   a sea of wallpaper instead of filling the screen, so scale the whole
-   desktop layout up (never down — narrower windows use the mobile
-   layout instead) to fill the available viewport, capped so it doesn't
-   blow up into blurriness on ultra-wide/4K displays. */
-const DESKTOP_DESIGN_W = 1440, DESKTOP_DESIGN_H = 900, MAX_DESKTOP_SCALE = 1.8;
 const useDesktopScale = (enabled) => {
   const [scale, setScale] = useState(1);
   useEffect(() => {
@@ -1298,7 +1310,7 @@ const MehConsole = ({ tweaks }) => {
           <div style={{
             width:DESKTOP_DESIGN_W, height:DESKTOP_DESIGN_H, flexShrink:0,
             transform:`scale(${desktopScale})`,
-            display:'flex', padding:'18px', gap:14, minHeight:0, boxSizing:'border-box',
+            display:'flex', padding:DESKTOP_PAD, gap:14, minHeight:0, boxSizing:'border-box',
           }}>
             <ConsoleSpine active={activeSection} onSelect={setActiveSection} />
             <div style={{ flex:1, display:'flex', flexDirection:'column', gap:12, minWidth:0, minHeight:0 }}>
