@@ -107,10 +107,18 @@ const BODY_FONT = "'MS Sans Serif','Segoe UI',Tahoma,Geneva,Verdana,sans-serif";
 const MONO_FONT = "'Courier New',monospace";
 const MOBILE_BREAKPOINT = 900;
 
+/* window.innerWidth alone is unreliable in embedded/iframe contexts that
+   don't honor the viewport meta tag (it falls back to a ~980px desktop
+   layout viewport on phones, silently shrinking everything instead of
+   switching layouts). window.screen.width reflects the real device/
+   screen size regardless, so treat either signal as authoritative. */
+const checkIsMobile = () =>
+  window.innerWidth <= MOBILE_BREAKPOINT || window.screen.width <= MOBILE_BREAKPOINT;
+
 const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= MOBILE_BREAKPOINT);
+  const [isMobile, setIsMobile] = useState(checkIsMobile);
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    const onResize = () => setIsMobile(checkIsMobile());
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
