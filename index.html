@@ -243,33 +243,108 @@ const SPINE_LEFT_SHIFT = -(DESKTOP_PAD + SPINE_DESIGN_W * SPINE_ART_LEFT_FRAC);
    leaving dead space beneath it. Growing by height makes it wider than the
    old fixed 224px; pulling it left both sits it flush to the edge and gives
    that width back to the middle column. */
-const ConsoleSpine = ({ active, onSelect }) => (
+/* Hover tooltip drawn in the pack's tooltip frame */
+const HudTooltip = ({ label, top }) => (
   <div style={{
-    alignSelf:'stretch', flexShrink:0, userSelect:'none',
-    height:'100%', aspectRatio:`${SPINE_FRAME_W} / ${SPINE_FRAME_H}`,
-    marginLeft:SPINE_LEFT_SHIFT,
-    position:'relative',
-    backgroundImage:"url('icons/spine_frame_full.png')",
+    position:'absolute', left:'100%', top, transform:'translateY(-50%)',
+    marginLeft:6, zIndex:60, pointerEvents:'none',
+    width:150, aspectRatio:'309 / 93',
+    backgroundImage:"url('icons/mehos_tooltip_frame.png')",
     backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+    display:'flex', alignItems:'center', justifyContent:'center',
   }}>
-    {NAV_ITEMS.map(item => {
-      const isActive = item.id === active;
-      const p = item.pos;
-      return (
-        <button
-          key={item.id}
-          onClick={() => onSelect(item.id)}
-          style={{
-            position:'absolute', left:`${p.left}%`, top:`${p.top}%`, width:`${p.width}%`, height:`${p.height}%`,
-            border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0,
-          }}
-        >
-          <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', height:'100%', display:'block' }} draggable={false} />
-        </button>
-      );
-    })}
+    <span style={{
+      fontFamily:MONO_FONT, fontSize:9.5, fontWeight:'bold',
+      color:'var(--mos-accent-cyan)', letterSpacing:0.5, whiteSpace:'nowrap',
+    }}>{label}</span>
   </div>
 );
+
+const NAV_HINT = {
+  about:'Identity & background', ctf:'Competition placements', research:'Security research',
+  skills:'Tooling loadout', resume:'CV download', contact:'Get in touch',
+  darkroom:'Film photography', hangar:'FPV builds', terminal:'Interactive shell',
+  bin:'Discarded assets',
+};
+
+const ConsoleSpine = ({ active, onSelect }) => {
+  const [hover, setHover] = useState(null);
+  return (
+    <div style={{
+      alignSelf:'stretch', flexShrink:0, userSelect:'none',
+      height:'100%', aspectRatio:`${SPINE_FRAME_W} / ${SPINE_FRAME_H}`,
+      marginLeft:SPINE_LEFT_SHIFT,
+      position:'relative',
+      backgroundImage:"url('icons/spine_frame_full.png')",
+      backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+    }}>
+      {NAV_ITEMS.map(item => {
+        const isActive = item.id === active;
+        const p = item.pos;
+        return (
+          <button
+            key={item.id}
+            onClick={() => onSelect(item.id)}
+            onMouseEnter={() => setHover(item.id)}
+            onMouseLeave={() => setHover(h => (h === item.id ? null : h))}
+            style={{
+              position:'absolute', left:`${p.left}%`, top:`${p.top}%`, width:`${p.width}%`, height:`${p.height}%`,
+              border:'none', background:'none', padding:0, cursor:'pointer', lineHeight:0,
+            }}
+          >
+            <img src={isActive ? item.rowSelected : item.rowNormal} style={{ width:'100%', height:'100%', display:'block' }} draggable={false} />
+          </button>
+        );
+      })}
+      {hover && (() => {
+        const it = NAV_ITEMS.find(n => n.id === hover);
+        return <HudTooltip label={NAV_HINT[hover]} top={`${it.pos.top + it.pos.height / 2}%`} />;
+      })()}
+    </div>
+  );
+};
+
+/* Right-click menu, drawn in the pack's context-menu frame */
+const HudContextMenu = ({ x, y, onSelect, onClose }) => {
+  const items = [
+    { id:'about', label:'About' },
+    { id:'ctf', label:'CTF' },
+    { id:'terminal', label:'Terminal' },
+    { id:'contact', label:'Contact' },
+  ];
+  useEffect(() => {
+    const close = () => onClose();
+    window.addEventListener('click', close);
+    window.addEventListener('scroll', close, true);
+    return () => { window.removeEventListener('click', close); window.removeEventListener('scroll', close, true); };
+  }, [onClose]);
+  return (
+    <div style={{
+      position:'fixed', left:x, top:y, zIndex:800,
+      width:170, aspectRatio:'304 / 555',
+      backgroundImage:"url('icons/mehos_ctxmenu_frame.png')",
+      backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+    }}>
+      <div style={{
+        position:'absolute', left:'12%', top:'10%', width:'76%', height:'80%',
+        display:'flex', flexDirection:'column', gap:2,
+      }}>
+        {items.map(it => (
+          <button key={it.id}
+            onClick={e => { e.stopPropagation(); onSelect(it.id); onClose(); }}
+            style={{
+              textAlign:'left', border:'none', background:'transparent', cursor:'pointer',
+              fontFamily:MONO_FONT, fontSize:10.5, color:'var(--mos-text)',
+              padding:'5px 8px',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,79,216,0.18)'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--mos-text)'; }}
+          >{it.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 /* Compact horizontal version for narrow viewports */
 const ConsoleSpineMobile = ({ active, onSelect }) => (
@@ -367,10 +442,12 @@ const AboutPanelContent = () => {
         <div style={{ flexShrink:0, border:'1px solid var(--mos-border-dark)', width:52, height:52, background:'var(--mos-panel-deep)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
           <canvas ref={avatarRef} width={50} height={50} style={{ imageRendering:'pixelated' }} />
         </div>
-        <div>
+        <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontFamily:MONO_FONT, fontSize:15, fontWeight:'bold', color:'#fff' }}>M3hDLL</div>
           <div style={{ color:'var(--mos-accent-cyan)', fontWeight:'bold', fontSize:12 }}>Information Security Analyst &amp; Penetration Tester</div>
         </div>
+        <img src="icons/mehos_logo_badge.png" draggable={false}
+          style={{ height:44, width:'auto', objectFit:'contain', flexShrink:0, opacity:0.95 }} />
       </div>
       <div style={{ lineHeight:1.7, marginBottom:14 }}>
         Information security analyst and penetration tester with hands-on experience in web and Android application security, cloud security assessment, SIEM evaluation, and reverse engineering. Active CTF competitor and self-directed learner focused on offensive security. Comfortable across the stack from smali-level Android teardown to cloud IAM boundary analysis.
@@ -576,32 +653,203 @@ const ContactPanelContent = () => {
   );
 };
 
+/* ── Darkroom · Hangar · Terminal · Bin ──
+   These four rows exist in the nav art. Terminal and Bin have real working
+   content; Darkroom and Hangar currently show the desk-scene artwork and say
+   plainly that there's nothing published yet rather than inventing a
+   portfolio for them. */
+
+const DarkroomPanelContent = () => (
+  <div style={{ fontFamily:BODY_FONT, fontSize:12, color:'var(--mos-text)' }}>
+    <img src="icons/mehos_scene.jpg" draggable={false}
+      style={{ width:'100%', display:'block', marginBottom:12, border:'1px solid var(--mos-border-dark)' }} />
+    <p style={{ lineHeight:1.7, color:'var(--mos-text-dim)' }}>
+      Film photography — the Canon AE-1 and Kodak Gold in the desk scene above.
+      Nothing scanned and published here yet.
+    </p>
+  </div>
+);
+
+const HangarPanelContent = () => (
+  <div style={{ fontFamily:BODY_FONT, fontSize:12, color:'var(--mos-text)' }}>
+    <div style={{ display:'flex', gap:10, marginBottom:12 }}>
+      <HudIcon src="icons/hud_uplink.png" size={34} />
+      <HudIcon src="icons/hud_chip.png" size={34} />
+    </div>
+    <p style={{ lineHeight:1.7, color:'var(--mos-text-dim)' }}>
+      FPV quads — the build on the desk scene. No logs, builds or footage
+      published here yet.
+    </p>
+  </div>
+);
+
+/* A real shell: every command returns information that is actually true of
+   this site, and unknown input is reported as such. */
+const TERMINAL_FS = {
+  'about.txt': 'Information Security Analyst & Penetration Tester.\nOffensive security, web & Android application testing,\nreverse engineering, CTF competitor.',
+  'ctf.txt': 'NahamCon CTF  — 17 / 2,363 teams (top 0.7%)  · team OwlSec\nDawgCTF       — 61 / 730 teams   (top 8.5%)  · team OwlSec\nCrews: OwlSec, ZeroSec (0sec)',
+  'contact.txt': 'email    izakbeau@gmail.com\ngithub   github.com/meh-dll\nlinkedin linkedin.com/in/IzakBeau',
+};
+
+const TerminalPanelContent = () => {
+  const [lines, setLines] = useState([
+    { t:'out', v:'MehOS shell — type `help` for commands.' },
+  ]);
+  const [input, setInput] = useState('');
+  const endRef = useRef(null);
+  useEffect(() => { if (endRef.current) endRef.current.scrollIntoView({ block:'end' }); }, [lines]);
+
+  const run = (raw) => {
+    const cmd = raw.trim();
+    if (!cmd) return;
+    const out = [];
+    const [name, ...args] = cmd.split(/\s+/);
+    switch (name.toLowerCase()) {
+      case 'help':
+        out.push('help            this list');
+        out.push('whoami          current identity');
+        out.push('ls              list readable files');
+        out.push('cat <file>      print a file');
+        out.push('skills          tooling loadout');
+        out.push('clear           clear the screen');
+        break;
+      case 'whoami': out.push('meh.dll'); break;
+      case 'ls': out.push(Object.keys(TERMINAL_FS).join('   ')); break;
+      case 'cat':
+        if (!args[0]) { out.push('cat: missing operand'); break; }
+        if (TERMINAL_FS[args[0]]) out.push(TERMINAL_FS[args[0]]);
+        else out.push(`cat: ${args[0]}: No such file`);
+        break;
+      case 'skills':
+        out.push('Burp Suite · ZAP · Nmap · Metasploit · SQLmap · Ghidra');
+        out.push('pwntools · Frida · AWS · Docker · Python · Bash');
+        break;
+      case 'clear': setLines([]); setInput(''); return;
+      default: out.push(`${name}: command not found`);
+    }
+    setLines(l => [...l, { t:'cmd', v:cmd }, ...out.map(v => ({ t:'out', v }))]);
+    setInput('');
+  };
+
+  return (
+    <div style={{ fontFamily:MONO_FONT, fontSize:11.5, color:'var(--mos-text)', lineHeight:1.7, height:'100%', display:'flex', flexDirection:'column' }}>
+      <div style={{ flex:1, overflow:'auto', minHeight:0 }}>
+        {lines.map((l, i) => (
+          <div key={i} style={{ whiteSpace:'pre-wrap', color: l.t === 'cmd' ? 'var(--mos-accent-cyan)' : 'var(--mos-text)' }}>
+            {l.t === 'cmd' ? `C:\\> ${l.v}` : l.v}
+          </div>
+        ))}
+        <div ref={endRef} />
+      </div>
+      <form onSubmit={e => { e.preventDefault(); run(input); }}
+        style={{ display:'flex', alignItems:'center', gap:6, borderTop:'1px solid var(--mos-border-dark)', paddingTop:6, marginTop:6 }}>
+        <HudIcon src="icons/hud_terminal.png" size={16} />
+        <span style={{ color:'var(--mos-accent-cyan)' }}>C:\&gt;</span>
+        <input
+          value={input} onChange={e => setInput(e.target.value)} autoFocus
+          spellCheck={false}
+          style={{
+            flex:1, background:'transparent', border:'none', outline:'none',
+            fontFamily:MONO_FONT, fontSize:11.5, color:'var(--mos-text)',
+          }}
+        />
+      </form>
+    </div>
+  );
+};
+
+/* The generation batch shipped several combined atlas/sheet outputs that were
+   never usable as individual assets. Rather than bin them silently, they live
+   here — which is exactly what this section is. */
+const BIN_SHEETS = [
+  'icons/mehos_sheet_1.jpg', 'icons/mehos_sheet_2.jpg', 'icons/mehos_sheet_3.jpg',
+  'icons/mehos_sheet_4.jpg', 'icons/mehos_sheet_5.jpg', 'icons/mehos_sheet_6.jpg',
+];
+
+const BinPanelContent = () => {
+  const [open, setOpen] = useState(null);
+  return (
+    <div style={{ fontFamily:BODY_FONT, fontSize:12, color:'var(--mos-text)' }}>
+      <p style={{ lineHeight:1.7, color:'var(--mos-text-dim)', marginBottom:12 }}>
+        Discarded output from the MehOS asset generation runs — combined atlas
+        and sprite-sheet attempts that never separated into usable files.
+        Kept because deleting your own dead ends is bad practice.
+      </p>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:8 }}>
+        {BIN_SHEETS.map((src, i) => (
+          <img key={src} src={src} draggable={false} onClick={() => setOpen(src)}
+            style={{ width:'100%', display:'block', cursor:'pointer', border:'1px solid var(--mos-border-dark)' }} />
+        ))}
+      </div>
+      {open && (
+        <div onClick={() => setOpen(null)} style={{
+          position:'fixed', inset:0, zIndex:900, background:'rgba(4,3,12,0.88)',
+          display:'flex', alignItems:'center', justifyContent:'center', padding:30, cursor:'zoom-out',
+        }}>
+          <div style={{
+            position:'relative', width:'min(88vw, 1100px)', aspectRatio:'1448 / 1086',
+            backgroundImage:"url('icons/mehos_modal_frame.png')",
+            backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+          }}>
+            <div style={{
+              position:'absolute', left:'7%', top:'12%', width:'86%', height:'80%',
+              display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden',
+            }}>
+              <img src={open} style={{ maxWidth:'100%', maxHeight:'100%', objectFit:'contain' }} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PANEL_CONTENT = {
   about: AboutPanelContent,
   ctf: CTFPanelContent,
   research: ResearchPanelContent,
   skills: SkillsPanelContent,
   contact: ContactPanelContent,
+  darkroom: DarkroomPanelContent,
+  hangar: HangarPanelContent,
+  terminal: TerminalPanelContent,
+  bin: BinPanelContent,
 };
+
+/* Three window shells ship in the pack; each section uses the one that suits
+   it — the CTF frame for placements, the tabbed window where a panel has its
+   own sub-navigation, the plain window everywhere else. */
+const PANEL_FRAME = {
+  /* the CTF frame already prints its own header, so the overlay label is
+     suppressed rather than stacked on top of it */
+  ctf:      { src:'icons/mehos_ctf_frame.png',     tabbed:true, bakedTitle:true },
+  research: { src:'icons/mehos_content_frame.png', tabbed:true  },
+  bin:      { src:'icons/mehos_content_frame.png', tabbed:true  },
+};
+const DEFAULT_PANEL_FRAME = { src:'icons/mehos_plain_frame.png', tabbed:false };
 
 const ContentPanel = ({ active, onPreviewCV }) => {
   const Comp = active === 'resume' ? null : PANEL_CONTENT[active];
+  const frame = PANEL_FRAME[active] || DEFAULT_PANEL_FRAME;
   return (
     <div style={{
       position:'relative', width:'100%', flex:1, minHeight:280,
-      backgroundImage:"url('icons/mehos_content_frame.png')",
+      backgroundImage:`url('${frame.src}')`,
       backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
     }}>
-      {/* Tab label sits in the frame's first tab slot */}
-      <div style={{
-        position:'absolute', left:'10%', top:'3.5%', width:'30%', height:'6.5%',
-        display:'flex', alignItems:'center', justifyContent:'center',
-        fontFamily:MONO_FONT, fontSize:11, fontWeight:'bold', color:'var(--mos-accent)', letterSpacing:0.5,
-        overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', padding:'0 4px',
-      }}>{PANEL_LABELS[active]}</div>
+      {/* Section label sits in the frame's first tab slot */}
+      {!frame.bakedTitle && (
+        <div style={{
+          position:'absolute', left:'10%', top:'3.5%', width:'30%', height:'6.5%',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontFamily:MONO_FONT, fontSize:11, fontWeight:'bold', color:'var(--mos-accent)', letterSpacing:0.5,
+          overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', padding:'0 4px',
+        }}>{PANEL_LABELS[active]}</div>
+      )}
 
       <div style={{
-        position:'absolute', left:'6%', top:'13%', width:'85%', height:'82%', overflow:'auto',
+        position:'absolute', left:'6%', top: frame.tabbed ? '13%' : '9%',
+        width:'85%', height: frame.tabbed ? '82%' : '86%', overflow:'auto',
         background:'rgba(6,5,18,0.55)', padding:'2%',
       }}>
         {active === 'resume' ? <ResumePanelContent onPreview={onPreviewCV} /> : (Comp && <Comp />)}
@@ -614,63 +862,127 @@ const ContentPanel = ({ active, onPreviewCV }) => {
    RIGHT STATUS STACK — decorative HUD sidebar
    ════════════════════════════════════════════ */
 
-/* The new asset pack ships each HUD block as its own ~4:3 card frame, which
-   can't tile down a 224px-wide column without overflowing the console height,
-   so this slot keeps the purpose-built tall stack frame. */
+/* Generic HUD card: a frame PNG with its content placed inside the frame's
+   own interior. Section titles are baked into most of these frames, so the
+   overlay carries values only and starts below the printed label. */
+const HudFrame = ({ frame, ratio, grow, inset = {}, children, style = {} }) => {
+  const { top = '24%', left = '10%', right = '10%', bottom = '10%' } = inset;
+  return (
+    <div style={{
+      width:'100%', flexShrink:0, position:'relative',
+      ...(grow ? { flex:1, minHeight:0 } : { aspectRatio:ratio }),
+      backgroundImage:`url('${frame}')`, backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
+      ...style,
+    }}>
+      <div style={{
+        position:'absolute', top, left, right, bottom,
+        display:'flex', flexDirection:'column', justifyContent:'center', minHeight:0, overflow:'hidden',
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const HudIcon = ({ src, size = 22, title }) => (
+  <img src={src} title={title} draggable={false}
+    style={{ width:size, height:size, objectFit:'contain', flexShrink:0 }} />
+);
+
+/* Aspect ratios below are the frames' own cropped dimensions, so each card
+   keeps the exact shape of its art; insets clear the labels baked into it. */
 const StatusStack = ({ time, uptime }) => (
   <div style={{
-    width:224, flexShrink:0, alignSelf:'stretch',
-    backgroundImage:"url('icons/mehos_status_frame.png')",
-    backgroundSize:'100% 100%', backgroundRepeat:'no-repeat',
-    display:'flex', flexDirection:'column', fontFamily:MONO_FONT, userSelect:'none',
-    overflow:'hidden',
+    width:200, flexShrink:0, alignSelf:'stretch',
+    display:'flex', flexDirection:'column', gap:4,
+    fontFamily:MONO_FONT, userSelect:'none', overflow:'hidden',
   }}>
-    {/* header / clock */}
-    <div style={{ height:'15%', flexShrink:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ fontSize:11, color:'var(--mos-text-dim)', letterSpacing:1 }}>MehOS v0.95.5b</div>
-      <div style={{ fontSize:20, fontWeight:'bold', color:'var(--mos-accent-cyan)', letterSpacing:1 }}>{time}</div>
-    </div>
-    {/* system status icons */}
-    <div style={{ height:'9%', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', gap:16 }}>
-      <span title="Online" style={{ fontSize:14 }}>💚</span>
-      <span title="Secure" style={{ fontSize:14 }}>🛡️</span>
-      <span title="Locked" style={{ fontSize:14 }}>🔒</span>
-    </div>
-    {/* shell info */}
-    <div style={{ height:'13%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', gap:2, fontSize:9.5 }}>
-      <div style={{ color:'var(--mos-text-dim)' }}>SHELL INFO</div>
-      <div style={{ color:'var(--mos-text)' }}>shell: meh.exe</div>
-      <div style={{ color:'var(--mos-text)' }}>uptime: {uptime}</div>
-      <div style={{ color:'var(--mos-text)' }}>kernel: mehOS 1995</div>
-    </div>
-    {/* security */}
-    <div style={{ height:'13%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', gap:3, fontSize:9.5 }}>
-      <div style={{ color:'var(--mos-text-dim)' }}>SECURITY</div>
-      <div style={{ color:'var(--mos-accent-cyan)' }}>state: OPERATIONAL</div>
-      <div style={{ display:'flex', gap:2 }}>
-        {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} style={{ width:6, height:8, background:'var(--mos-accent-cyan)', opacity:0.85 }} />
-        ))}
+    <div style={{ display:'flex', gap:4, alignItems:'center', flexShrink:0 }}>
+      <div style={{ width:50, flexShrink:0 }}>
+        <HudFrame frame="icons/mehos_sysstatus_frame.png" ratio="157 / 303"
+          inset={{ top:'20%', bottom:'8%', left:'14%', right:'14%' }}>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-around', height:'100%' }}>
+            <HudIcon src="icons/hud_heartbeat.png" size={20} title="Online" />
+            <HudIcon src="icons/hud_shield.png" size={20} title="Secure" />
+            <HudIcon src="icons/hud_lock.png" size={20} title="Locked" />
+          </div>
+        </HudFrame>
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <HudFrame frame="icons/mehos_clock_frame.png" ratio="388 / 361"
+          inset={{ top:'26%', bottom:'26%', left:'12%', right:'12%' }}>
+          <div style={{ textAlign:'center', fontSize:8.5, color:'var(--mos-text-dim)', letterSpacing:0.5 }}>MehOS v0.95.5b</div>
+          <div style={{ textAlign:'center', fontSize:17, fontWeight:'bold', color:'var(--mos-accent-cyan)', letterSpacing:1 }}>{time}</div>
+        </HudFrame>
       </div>
     </div>
-    {/* network (tall) */}
-    <div style={{ flex:1, padding:'6% 10%', display:'flex', flexDirection:'column', gap:6, fontSize:9.5, minHeight:0 }}>
-      <div style={{ color:'var(--mos-text-dim)' }}>NETWORK</div>
-      <div style={{ color:'var(--mos-text)' }}>link: uplink</div>
-      <div style={{ display:'flex', alignItems:'flex-end', gap:2, flex:1, minHeight:40 }}>
-        {Array.from({ length: 18 }).map((_, i) => (
-          <div key={i} style={{
-            flex:1, background:'var(--mos-accent-purple)',
-            height:`${20 + ((i * 37) % 70)}%`,
-            animation:`barPulse ${1.2 + (i % 5) * 0.15}s ease-in-out infinite`,
-          }} />
-        ))}
+
+    <HudFrame frame="icons/mehos_shell_frame.png" ratio="395 / 281"
+      inset={{ top:'27%', bottom:'10%', left:'9%', right:'9%' }}>
+      <div style={{ fontSize:9, color:'var(--mos-text)', lineHeight:1.65 }}>
+        <div>shell: meh.exe</div>
+        <div>uptime: {uptime}</div>
+        <div>kernel: mehOS 1995</div>
       </div>
-    </div>
-    {/* notes footer */}
-    <div style={{ height:'12%', flexShrink:0, padding:'0 10%', display:'flex', flexDirection:'column', justifyContent:'center', fontSize:9, color:'var(--mos-accent-purple)', lineHeight:1.4 }}>
-      "Stay curious. Break things. Understand everything." — meh.dll
-    </div>
+    </HudFrame>
+
+    {/* SECURITY frame bakes in the "state:/integrity:/network:" labels, so only
+        the values are drawn, aligned to the right of them. */}
+    <HudFrame frame="icons/mehos_security_frame.png" ratio="382 / 179"
+      inset={{ top:'14%', bottom:'12%', left:'42%', right:'7%' }}>
+      <div style={{ fontSize:8.5, color:'var(--mos-accent-cyan)', lineHeight:1.65 }}>
+        <div>OPERATIONAL</div>
+        <div>VERIFIED</div>
+        <div>UPLINK</div>
+      </div>
+      <img src="icons/hud_progress.png" draggable={false}
+        style={{ width:'92%', height:8, objectFit:'fill', display:'block', marginTop:3 }} />
+    </HudFrame>
+
+    <HudFrame frame="icons/mehos_network_frame.png" ratio="384 / 236" grow
+      inset={{ top:'25%', bottom:'10%', left:'9%', right:'9%' }}>
+      <div style={{ display:'flex', alignItems:'stretch', gap:4, flex:1, minHeight:22 }}>
+        <img src="icons/hud_vbar_seg.png" draggable={false}
+          style={{ height:'100%', width:'auto', objectFit:'contain', flexShrink:0 }} />
+        <div style={{ display:'flex', alignItems:'flex-end', gap:2, flex:1, minWidth:0 }}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} style={{
+              flex:1, background:'var(--mos-accent-purple)',
+              height:`${20 + ((i * 37) % 70)}%`,
+              animation:`barPulse ${1.2 + (i % 5) * 0.15}s ease-in-out infinite`,
+            }} />
+          ))}
+        </div>
+        <img src="icons/hud_vbar_thin.png" draggable={false}
+          style={{ height:'100%', width:'auto', objectFit:'contain', flexShrink:0 }} />
+      </div>
+    </HudFrame>
+
+    <HudFrame frame="icons/mehos_notes_frame.png" ratio="200 / 271"
+      inset={{ top:'16%', bottom:'9%', left:'13%', right:'13%' }}>
+      <div style={{ fontSize:8.5, color:'var(--mos-accent-purple)', lineHeight:1.5 }}>
+        "Stay curious. Break things. Understand everything." — meh.dll
+      </div>
+    </HudFrame>
+  </div>
+);
+
+/* Widget strip above the bottom bar — the power/temp readout beside the
+   heartbeat monitor. The POWER / AC LINE / TEMP labels are baked into the
+   frame, so only the two readout values are drawn. */
+const WIDGET_ROW_H = 62;
+const WidgetRow = () => (
+  <div style={{ display:'flex', gap:10, flexShrink:0, alignItems:'center', height:WIDGET_ROW_H, fontFamily:MONO_FONT }}>
+    <HudFrame frame="icons/mehos_power_frame.png" ratio="539 / 169"
+      style={{ height:'100%', width:'auto' }}
+      inset={{ top:'17%', bottom:'15%', left:'34%', right:'7%' }}>
+      <div style={{ display:'flex', flexDirection:'column', justifyContent:'space-around', height:'100%', fontSize:8.5, color:'var(--mos-accent-cyan)' }}>
+        <div>MAINS · STABLE</div>
+        <div>NOMINAL</div>
+      </div>
+    </HudFrame>
+    <img src="icons/mehos_heartbeat.png" draggable={false}
+      style={{ height:'100%', width:'auto', objectFit:'contain', flexShrink:0 }} />
   </div>
 );
 
@@ -688,11 +1000,22 @@ const BottomBar = () => (
     aspectRatio:'2172 / 90', minHeight:34,
   }}>
     <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 3%', gap:'2%' }}>
-      <div style={{ fontFamily:MONO_FONT, fontSize:10, fontWeight:'bold', color:'var(--mos-accent-cyan)', flexShrink:0 }}>
-        OwlSec · ZeroSec
+      <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
+        <img src="icons/mehos_emblem.png" draggable={false}
+          style={{ height:18, width:'auto', objectFit:'contain' }} />
+        <span style={{ fontFamily:MONO_FONT, fontSize:10, fontWeight:'bold', color:'var(--mos-accent-cyan)' }}>
+          OwlSec · ZeroSec
+        </span>
       </div>
       <div style={{ flex:1, fontFamily:MONO_FONT, fontSize:10, color:'var(--mos-text-dim)', overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', textAlign:'center' }}>
         M3hDLL — offensive security · web &amp; Android · reverse engineering · CTF
+      </div>
+      <img src="icons/hud_equalizer.png" draggable={false}
+        style={{ height:20, width:'auto', objectFit:'contain', flexShrink:0 }} />
+      <div style={{ display:'flex', alignItems:'center', gap:3, flexShrink:0 }}>
+        <HudIcon src="icons/hud_led_green.png" size={11} title="Online" />
+        <HudIcon src="icons/hud_led_purple.png" size={11} title="Secure session" />
+        <HudIcon src="icons/hud_led_red.png" size={11} title="Recording off" />
       </div>
       <div style={{ fontFamily:MONO_FONT, fontSize:10, fontWeight:'bold', color:'var(--mos-accent)', flexShrink:0 }}>
         ONLINE
@@ -1281,6 +1604,7 @@ const MehConsole = ({ tweaks }) => {
   const { scale: desktopScale, designW } = useDesktopMetrics(!isMobile);
   const [time, setTime] = useState('');
   const [uptime, setUptime] = useState('0m');
+  const [ctxMenu, setCtxMenu] = useState(null);
   const sessionStartRef = useRef(Date.now());
 
   useEffect(() => {
@@ -1297,12 +1621,18 @@ const MehConsole = ({ tweaks }) => {
   }, [tweaks.showClock]);
 
   return (
-    <div style={{
-      position:'fixed', inset:0, overflow:'hidden', animation:'desktopReveal 0.6s ease',
-      backgroundImage:"url('icons/mehos_console_bg.jpg')",
-      backgroundSize:'cover', backgroundPosition:'center', backgroundRepeat:'no-repeat',
-      display:'flex', flexDirection:'column',
-    }}>
+    <div
+      onContextMenu={e => {
+        if (isMobile) return;
+        e.preventDefault();
+        setCtxMenu({ x: Math.min(e.clientX, window.innerWidth - 200), y: Math.min(e.clientY, window.innerHeight - 300) });
+      }}
+      style={{
+        position:'fixed', inset:0, overflow:'hidden', animation:'desktopReveal 0.6s ease',
+        backgroundImage:"url('icons/mehos_console_bg.jpg')",
+        backgroundSize:'cover', backgroundPosition:'center', backgroundRepeat:'no-repeat',
+        display:'flex', flexDirection:'column',
+      }}>
       {isMobile ? (
         <>
           <ConsoleSpineMobile active={activeSection} onSelect={setActiveSection} />
@@ -1321,9 +1651,10 @@ const MehConsole = ({ tweaks }) => {
             display:'flex', padding:DESKTOP_PAD, gap:14, minHeight:0, boxSizing:'border-box',
           }}>
             <ConsoleSpine active={activeSection} onSelect={setActiveSection} />
-            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:12, minWidth:0, minHeight:0 }}>
+            <div style={{ flex:1, display:'flex', flexDirection:'column', gap:10, minWidth:0, minHeight:0 }}>
               <TerminalPanel />
               <ContentPanel active={activeSection} onPreviewCV={() => setShowCVPreview(true)} />
+              <WidgetRow />
               <BottomBar />
             </div>
             <StatusStack time={time} uptime={uptime} />
@@ -1332,6 +1663,19 @@ const MehConsole = ({ tweaks }) => {
       )}
 
       {showCVPreview && <HolyCVPreview onClose={() => setShowCVPreview(false)} />}
+
+      {ctxMenu && (
+        <HudContextMenu x={ctxMenu.x} y={ctxMenu.y}
+          onSelect={setActiveSection} onClose={() => setCtxMenu(null)} />
+      )}
+
+      {/* CRT scanline overlay sits above everything, purely decorative */}
+      <div style={{
+        position:'fixed', inset:0, zIndex:950, pointerEvents:'none',
+        backgroundImage:"url('icons/mehos_scanlines.png')",
+        backgroundSize:'cover', backgroundPosition:'center',
+        opacity:0.28, mixBlendMode:'overlay',
+      }} />
     </div>
   );
 };
